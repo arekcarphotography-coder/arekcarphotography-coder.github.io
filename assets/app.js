@@ -47,7 +47,8 @@ document.body.insertAdjacentHTML("afterbegin", `
     <button class="burger" aria-label="Menu" aria-controls="menu" aria-expanded="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path class="b1" d="M3 7h18"/><path class="b2" d="M3 12h18"/><path class="b3" d="M3 17h18"/></svg></button>
   </div>
 </div></header>`);
-document.body.insertAdjacentHTML("beforeend", `
+// Kontakt i stopka są zwykle już w HTML (tools/build_site.rb) — skrypt wstawia je tylko na starych adresach
+if (!$("#contact")) document.body.insertAdjacentHTML("beforeend", `
 <section id="contact" class="contact"><div class="wrap contact-grid">
   <div class="contact-info reveal">
     <div class="eyebrow" data-i18n="contact.eyebrow"></div><h2 data-i18n="contact.h"></h2>
@@ -77,7 +78,8 @@ document.body.insertAdjacentHTML("beforeend", `
     <p class="fmsg" id="fmsg" role="status" aria-live="polite"></p>
   </form>
 </div></section>
-<footer><div class="wrap"><span>© 2026 Arek Carphotography · Rzeszów, Podkarpacie</span></div></footer>
+<footer><div class="wrap"><span>© 2026 Arek Carphotography · Rzeszów, Podkarpacie</span></div></footer>`);
+document.body.insertAdjacentHTML("beforeend", `
 <div class="lb" id="lb" role="dialog" aria-modal="true">
   <button class="x" aria-label="Zamknij">×</button><button class="prev" aria-label="Poprzednie">‹</button><button class="next-b" aria-label="Następne">›</button>
   <img alt=""><div class="cap"></div>

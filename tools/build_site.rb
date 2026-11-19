@@ -110,6 +110,12 @@ def alt_for(slug, name, l)
   return "#{L(a[:title], l)}#{place}" unless i
   "#{L(a[:title], l)}#{place}, #{l == "pl" ? "zdjęcie #{i + 1} z #{a[:photos].size}" : "photo #{i + 1} of #{a[:photos].size}"}"
 end
+def fill_i18n(html, l)
+  html.gsub(/(<(\w+)\b[^>]*\sdata-i18n="([^"]+)"[^>]*>)(.*?)(<\/>)/m) do
+    m = Regexp.last_match
+    m[1] + h(t(m[3], l)) + m[5]
+  end
+end
 def nalbums(n, l)
   return "#{n} albums" if l == "en"
   "#{n} #{n == 1 ? "album" : (n % 10).between?(2, 4) && !(n % 100).between?(12, 14) ? "albumy" : "albumów"}"
@@ -210,7 +216,50 @@ end
 TPL = %w[index album trip post].to_h { |n| [n, File.read(n == "index" ? "tools/templates/index.html" : "#{n}.html", encoding: "UTF-8")] }
 TPL.each { |n, s| abort "#{n}.html: brak znaczników <!-- SEO:START --> / <!-- SEO:END -->" unless s.include?("<!-- SEO:START") && s.include?("<!-- SEO:END -->") }
 # strona bez własnego skryptu (polityka, 404): wzorzec albumu bez skryptu renderującego
-PLAIN = TPL["album"].sub(%r{<script>\s*const slug.*?</script>\n?}m, "")
+PLAIN = TPL["album"].sub(%r{<script>\s*const slug.*?</script>\n?}m, "<script>applyLang();</script>\n")
+# sekcja kontaktu i stopka jak w assets/app.js — w HTML, żeby e-mail i obszar działania były widoczne bez JavaScriptu
+def contact_html(l)
+  icons = SOCIAL.map do |n, u, p|
+    blank = u.start_with?("http") ? ' target="_blank" rel="noopener"' : ""
+    %Q(<a href="#{h u}" aria-label="#{h n}"#{blank}><svg viewBox="0 0 24 24"><path d="#{p}"/></svg></a>)
+  end.join
+  fill_i18n(<<~HTML, l)
+    <section id="contact" class="contact"><div class="wrap contact-grid">
+      <div class="contact-info reveal">
+        <div class="eyebrow" data-i18n="contact.eyebrow"></div><h2 data-i18n="contact.h"></h2>
+        <p class="contact-lead" data-i18n="contact.p"></p>
+        <p class="contact-or" data-i18n="form.or"></p>
+        <a class="mail" href="mailto:#{EMAIL}">#{EMAIL}</a>
+        <div class="social">#{icons}</div>
+      </div>
+      <form class="cform reveal" id="cform" novalidate>
+        <div class="row2">
+          <label><span data-i18n="form.name"></span><input name="name" autocomplete="name" required></label>
+          <label><span data-i18n="form.email"></span><input name="email" type="email" autocomplete="email" required></label>
+        </div>
+        <div class="row2">
+          <label><span data-i18n="form.phone"></span><input name="phone" type="tel" autocomplete="tel"></label>
+          <label><span data-i18n="form.type"></span><select name="type">
+            <option value="session" data-i18n="form.type.session"></option><option value="event" data-i18n="form.type.event"></option>
+            <option value="collab" data-i18n="form.type.collab"></option><option value="other" data-i18n="form.type.other"></option></select></label>
+        </div>
+        <div class="row2">
+          <label><span data-i18n="form.date"></span><input name="date" type="date"></label>
+          <label><span data-i18n="form.place"></span><input name="place"></label>
+        </div>
+        <label><span data-i18n="form.msg"></span><textarea name="message" rows="5" required data-i18n-ph="form.msg.ph" placeholder="#{h t("form.msg.ph", l)}"></textarea></label>
+        <input name="_gotcha" class="hp" tabindex="-1" autocomplete="off" aria-hidden="true">
+        <button class="btn" type="submit" data-i18n="form.send"></button>
+        <p class="fmsg" id="fmsg" role="status" aria-live="polite"></p>
+      </form>
+    </div></section>
+    <footer><div class="wrap"><span>© 2026 Arek Carphotography · Rzeszów, Podkarpacie</span></div></footer>
+  HTML
+end
+def with_contact(html, l)
+  html.sub("</main>") { "</main>\n" + contact_html(l) }
+end
+
 
 # ---------- wspólne: firma (JSON-LD), FAQ ----------
 BIZ_ID = abs("") + "#firma"
@@ -237,12 +286,6 @@ def faq_html(l)
 end
 
 # ---------- strona główna: treść w HTML (bez czekania na JavaScript) ----------
-def fill_i18n(html, l)
-  html.gsub(/(<(\w+)\b[^>]*\sdata-i18n="([^"]+)"[^>]*>)(.*?)(<\/\2>)/m) do
-    m = Regexp.last_match
-    m[1] + h(t(m[3], l)) + m[5]
-  end
-end
 def fill_id(html, id, inner)
   html.sub(%r{(<div[^>]*\sid="#{id}"[^>]*>)(</div>)}) { m = Regexp.last_match; m[1] + inner + m[2] } or abort("brak ##{id}")
 end
@@ -297,6 +340,7 @@ LANGS.each do |l|
     <h3><span>#{h L(p[:t], l)}</span></h3><p>#{h L(p[:d], l)}</p><span class="more">#{h t("blog.more", l)}</span></a></article>| }.join)
   html = fill_id(html, "aboutImg", pic_html("koenigsegg-cc850", "dsc07731", "Arek Carphotography — fotograf samochodowy", "(max-width: 860px) 100vw, 50vw"))
   html = fill_i18n(html, l)
+  html = with_contact(html, l)
   if l == "pl" then File.write("index.html", html); WRITTEN << "" else write(alt[l], html) end
 end
 sitemap << [PATHS[:home].("pl"), PATHS[:home].("en"), HERO.map { |x| [photo(x[:a], x[:n]), L(FIND[x[:a]]&.dig(:title) || "", "pl")] }]
@@ -332,7 +376,7 @@ ALBUMS.each do |a|
       <div class="seo-pics">#{a[:photos].first(12).map { |n, w, hh| %Q|<img src="#{photo(a[:slug], n, 640)}" width="#{w}" height="#{hh}" alt="#{h alt_for(a[:slug], n, l)}" loading="lazy" decoding="async">| }.join}</div>
       </div></section>
     HTML
-    write(alt[l], set_main(set_lang(set_seo(TPL["album"], block), l), pre))
+    write(alt[l], with_contact(set_main(set_lang(set_seo(TPL["album"], block), l), pre), l))
   end
   sitemap << [PATHS[:album].("pl", a[:slug]), PATHS[:album].("en", a[:slug]), a[:photos].map { |n, *| [photo(a[:slug], n), L(a[:title], "pl")] }]
 end
@@ -361,7 +405,7 @@ TRIPS.each do |tr|
       <ul>#{al.map { |a| %Q|<li><a href="#{PATHS[:album].(l, a[:slug])}">#{h L(a[:title], l)}</a></li>| }.join}</ul>
       </div></section>
     HTML
-    write(alt[l], set_main(set_lang(set_seo(TPL["trip"], block), l), pre))
+    write(alt[l], with_contact(set_main(set_lang(set_seo(TPL["trip"], block), l), pre), l))
   end
   sitemap << [PATHS[:trip].("pl", tr[:slug]), PATHS[:trip].("en", tr[:slug]), []]
 end
@@ -388,7 +432,7 @@ POSTS.each do |p|
       #{body}
       </article></div></section>
     HTML
-    write(alt[l], set_main(set_lang(set_seo(TPL["post"], block), l), pre))
+    write(alt[l], with_contact(set_main(set_lang(set_seo(TPL["post"], block), l), pre), l))
   end
   sitemap << [PATHS[:post].("pl", p[:slug]), PATHS[:post].("en", p[:slug]), []]
 end
@@ -427,7 +471,7 @@ LANGS.each do |l|
     <div class="faq">#{faq_html(l)}</div>
     </div></section>
   HTML
-  write(alt[l], set_main(set_lang(set_seo(PLAIN, block), l), pre))
+  write(alt[l], with_contact(set_main(set_lang(set_seo(PLAIN, block), l), pre), l))
 end
 sitemap << [PATHS[:offer].("pl"), PATHS[:offer].("en"), []]
 
@@ -439,7 +483,7 @@ nf = set_seo(PLAIN, <<~HTML.chomp)
   <meta name="robots" content="noindex">
   <!-- SEO:END -->
 HTML
-File.write("404.html", set_main(nf, <<~HTML))
+File.write("404.html", with_contact(set_main(nf, <<~HTML), "pl"))
   <section class="seo-pre"><div class="wrap"><h1>404</h1>
   <p>Nie ma takiej strony. <a href="./">Wróć na stronę główną</a>.</p>
   <p>Page not found. <a href="en/">Go to the home page</a>.</p></div></section>

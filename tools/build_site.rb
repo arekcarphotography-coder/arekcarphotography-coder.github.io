@@ -111,7 +111,7 @@ def alt_for(slug, name, l)
   "#{L(a[:title], l)}#{place}, #{l == "pl" ? "zdjęcie #{i + 1} z #{a[:photos].size}" : "photo #{i + 1} of #{a[:photos].size}"}"
 end
 def fill_i18n(html, l)
-  html.gsub(/(<(\w+)\b[^>]*\sdata-i18n="([^"]+)"[^>]*>)(.*?)(<\/>)/m) do
+  html.gsub(/(<(\w+)\b[^>]*\sdata-i18n="([^"]+)"[^>]*>)(.*?)(<\/\2>)/m) do
     m = Regexp.last_match
     m[1] + h(t(m[3], l)) + m[5]
   end

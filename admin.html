@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>Panel admina — Arek Carphotography</title>
+<link href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400;500&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0d0d0d;--panel:#161616;--panel2:#1d1d1d;--fg:#f2f2f2;--muted:#8d8d8d;--line:#2a2a2a;--accent:#c8a96a;--ok:#5fb37b}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--fg);font:14px/1.5 Inter,system-ui,sans-serif;display:grid;grid-template-columns:240px 1fr;min-height:100vh}
+aside{background:var(--panel);border-right:1px solid var(--line);padding:24px 16px;display:flex;flex-direction:column;gap:4px}
+.brand{font:400 15px Jost;letter-spacing:.16em;text-transform:uppercase;padding:0 10px 22px}
+aside a{padding:10px 12px;border-radius:6px;color:var(--muted);text-decoration:none}
+aside a.on,aside a:hover{background:var(--panel2);color:var(--fg)}
+aside .spacer{flex:1}
+main{padding:clamp(16px,3vw,40px);max-width:1200px;width:100%}
+h1{font:300 30px Jost;margin-bottom:4px}
+.sub{color:var(--muted);margin-bottom:28px}
+.row{display:flex;gap:16px;flex-wrap:wrap;margin-bottom:28px}
+.stat{flex:1;min-width:160px;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:18px}
+.stat b{display:block;font:300 30px Jost}.stat span{color:var(--muted);font-size:12px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:22px;margin-bottom:24px}
+.card h2{font:400 18px Jost;margin-bottom:16px}
+.form{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+label{display:flex;flex-direction:column;gap:6px;font-size:12px;color:var(--muted)}
+input,select,textarea{background:var(--panel2);border:1px solid var(--line);color:var(--fg);padding:10px 12px;border-radius:6px;font:inherit}
+input:focus,select:focus,textarea:focus{outline:none;border-color:var(--accent)}
+.full{grid-column:1/-1}
+.drop{border:1.5px dashed #3a3a3a;border-radius:10px;padding:36px;text-align:center;color:var(--muted);transition:.2s;cursor:pointer}
+.drop.over{border-color:var(--accent);background:rgba(200,169,106,.06);color:var(--fg)}
+.drop strong{color:var(--fg);display:block;font-size:15px;margin-bottom:4px}
+.thumbs{display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:10px;margin-top:16px}
+.thumb{position:relative;aspect-ratio:1;border-radius:6px;overflow:hidden;background:var(--panel2)}
+.thumb img{width:100%;height:100%;object-fit:cover}
+.thumb span{position:absolute;left:6px;bottom:6px;font-size:10px;background:rgba(0,0,0,.7);padding:2px 6px;border-radius:4px}
+.thumb span.ok{color:var(--ok)}
+.btn{background:var(--accent);color:#111;border:0;padding:11px 22px;border-radius:6px;font:600 13px Inter;cursor:pointer}
+.btn.ghost{background:none;border:1px solid var(--line);color:var(--fg)}
+.actions{display:flex;gap:10px;justify-content:flex-end;margin-top:18px}
+table{width:100%;border-collapse:collapse}
+th,td{text-align:left;padding:12px 8px;border-bottom:1px solid var(--line)}
+th{color:var(--muted);font-weight:500;font-size:12px}
+.pill{font-size:11px;padding:3px 9px;border-radius:99px;background:rgba(95,179,123,.15);color:var(--ok)}
+.pill.draft{background:#2a2a2a;color:var(--muted)}
+.tabs{display:flex;gap:8px}.tab{background:var(--panel2);border:1px solid var(--line);color:var(--muted);padding:8px 14px;border-radius:6px;font:inherit;cursor:pointer}.tab.on{border-color:var(--accent);color:var(--fg)}
+label[hidden]{display:none}
+.note{font-size:12px;color:var(--muted);margin-top:10px}
+@media(max-width:800px){body{grid-template-columns:1fr}aside{flex-direction:row;overflow-x:auto;padding:12px}.brand,.spacer{display:none}.form{grid-template-columns:1fr}td:nth-child(3),th:nth-child(3){display:none}}
+</style>
+</head>
+<body>
+<aside>
+  <div class="brand">Arek · Admin</div>
+  <a class="on" href="#">Albumy</a><a href="#">Wpisy na blogu</a><a href="#">Strona główna</a><a href="#">SEO</a>
+  <div class="spacer"></div><a href="index.html">← Podgląd strony</a>
+</aside>
+<main>
+  <h1>Albumy</h1>
+  <p class="sub">Makieta — tak może wyglądać dodawanie nowego folderu ze zdjęciami.</p>
+
+  <div class="row">
+    <div class="stat"><b>12</b><span>albumów</span></div>
+    <div class="stat"><b>486</b><span>zdjęć</span></div>
+    <div class="stat"><b>-71%</b><span>średnio mniejsze pliki po konwersji do WebP/AVIF</span></div>
+  </div>
+
+  <div class="card">
+    <h2>Nowy album</h2>
+    <div class="form">
+      <div class="full tabs"><button class="tab on" data-t="pl">Treść po polsku</button><button class="tab" data-t="en">Treść dla wersji angielskiej (opcjonalnie)</button></div>
+      <label class="l-pl">Nazwa albumu (PL)<input id="name" placeholder="np. Cars & Coffee Rzeszów 2026"></label>
+      <label class="l-pl">Lokalizacja (PL)<input placeholder="np. Rzeszów, Podkarpacie"></label>
+      <label class="full l-pl">Opis (PL) — trafia do opisu w Google i na stronę albumu<textarea rows="3" placeholder="2–3 zdania o sesji: auta, miejsce, klimat…"></textarea></label>
+      <label class="l-en" hidden>Nazwa albumu po angielsku<input placeholder="puste = tłumaczenie automatyczne"></label>
+      <label class="l-en" hidden>Lokalizacja po angielsku<input placeholder="np. Rzeszów, Poland"></label>
+      <label class="full l-en" hidden>Opis po angielsku<textarea rows="3" placeholder="Zostaw puste — opis przetłumaczy się automatycznie z polskiego. Wpisz tylko, jeśli chcesz poprawić tłumaczenie."></textarea></label>
+      <label>Kategoria<select><option>Eventy</option><option>Śnieg / The ICE</option><option>Sesje</option><option>Klasyki</option></select></label>
+      <label>Data<input type="date" value="2026-11-17"></label>
+      <label class="full">Wydarzenie / wyjazd (opcjonalnie — grupuje kilka albumów na jednej stronie zbiorczej)
+        <select id="trip"><option value="">— brak, samodzielny album —</option><option selected>Lake Como Car Week 2026</option><option value="new">+ Nowy wyjazd…</option></select></label>
+      <label class="full" id="newTrip" hidden>Nazwa nowego wyjazdu<input placeholder="np. St. Moritz 2027"></label>
+      <label class="full">Adresy URL<input id="slug" placeholder="/albumy/…  ·  /en/albums/…" readonly></label>
+      <div class="full">
+        <div class="drop" id="drop"><strong>Przeciągnij zdjęcia lub cały folder</strong>JPG / PNG / HEIC — konwersja do WebP + AVIF i miniatury dzieją się automatycznie<input type="file" id="file" multiple accept="image/*" hidden></div>
+        <div class="thumbs" id="thumbs"></div>
+        <p class="note">Pierwsze zdjęcie = okładka albumu. Kolejność ustawisz przeciąganiem.</p>
+      </div>
+    </div>
+    <div class="actions"><button class="btn ghost">Zapisz szkic</button><button class="btn" onclick="alert('W makiecie nic nie jest wysyłane 🙂')">Opublikuj</button></div>
+  </div>
+
+  <div class="card">
+    <h2>Istniejące albumy</h2>
+    <table>
+      <tr><th>Album</th><th>Zdjęcia</th><th>Data</th><th>Status</th></tr>
+      <tr><td><b>Lake Como Car Week 2026</b> <span style="color:var(--muted);font-size:12px">· wyjazd, 3 albumy</span></td><td>17</td><td>22–24.05.2026</td><td><span class="pill">Opublikowany</span></td></tr>
+      <tr><td style="padding-left:24px">↳ Concorso d'Eleganza Villa d'Este 2026</td><td>5</td><td>22.05.2026</td><td><span class="pill">Opublikowany</span></td></tr>
+      <tr><td style="padding-left:24px">↳ Fuori Concorso 2026</td><td>5</td><td>23.05.2026</td><td><span class="pill">Opublikowany</span></td></tr>
+      <tr><td style="padding-left:24px">↳ Villa Flori — wystawa aut 2026</td><td>4</td><td>24.05.2026</td><td><span class="pill draft">Szkic</span></td></tr>
+      <tr><td>Cars & Coffee Rzeszów 2026</td><td>6</td><td>07.06.2026</td><td><span class="pill">Opublikowany</span></td></tr>
+      <tr><td>The ICE St. Moritz 2026</td><td>84</td><td>14.02.2026</td><td><span class="pill">Opublikowany</span></td></tr>
+      <tr><td>Côte d'Azur Supercars</td><td>52</td><td>02.10.2025</td><td><span class="pill">Opublikowany</span></td></tr>
+      <tr><td>Pagani Private Session</td><td>36</td><td>20.07.2025</td><td><span class="pill draft">Szkic</span></td></tr>
+    </table>
+  </div>
+</main>
+<script>
+const name=document.getElementById("name"),slug=document.getElementById("slug");
+document.querySelectorAll(".tab").forEach(b=>b.onclick=e=>{e.preventDefault();document.querySelectorAll(".tab").forEach(x=>x.classList.toggle("on",x===b));
+  document.querySelectorAll(".l-pl").forEach(x=>x.hidden=b.dataset.t!=="pl");document.querySelectorAll(".l-en").forEach(x=>x.hidden=b.dataset.t!=="en")});
+document.getElementById("trip").onchange=e=>document.getElementById("newTrip").hidden=e.target.value!=="new";
+name.oninput=()=>{const s=name.value.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g,"").replace(/ł/g,"l").replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"");slug.value=`/albumy/${s}  ·  /en/albums/${s}`};
+const drop=document.getElementById("drop"),file=document.getElementById("file"),thumbs=document.getElementById("thumbs");
+drop.onclick=()=>file.click();
+["dragenter","dragover"].forEach(t=>drop.addEventListener(t,e=>{e.preventDefault();drop.classList.add("over")}));
+["dragleave","drop"].forEach(t=>drop.addEventListener(t,e=>{e.preventDefault();drop.classList.remove("over")}));
+drop.addEventListener("drop",e=>add(e.dataTransfer.files));file.onchange=()=>add(file.files);
+function add(files){[...files].filter(f=>f.type.startsWith("image/")).forEach(f=>{
+  const d=document.createElement("div");d.className="thumb";
+  d.innerHTML=`<img src="${URL.createObjectURL(f)}" alt=""><span>${(f.size/1048576).toFixed(1)} MB</span>`;thumbs.append(d);
+  // symulacja konwersji
+  setTimeout(()=>{const s=d.querySelector("span");s.className="ok";s.textContent="WebP · "+(f.size*0.28/1048576).toFixed(1)+" MB"},800+Math.random()*1200);
+})}
+</script>
+</body>
+</html>

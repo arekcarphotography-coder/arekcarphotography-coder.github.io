@@ -1,0 +1,24 @@
+# Ustawienia dla Netlify (hostingu). Strona jest statyczna — nie ma kroku budowania.
+[build]
+  publish = "."
+
+# Zdjęcia, czcionki, ikony: długa pamięć podręczna (nazwy plików się nie zmieniają)
+[[headers]]
+  for = "/assets/photos/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+[[headers]]
+  for = "/assets/og/*"
+  [headers.values]
+    Cache-Control = "public, max-age=604800"
+# Strony HTML i skrypty: zawsze sprawdzaj nową wersję
+[[headers]]
+  for = "/*.html"
+  [headers.values]
+    Cache-Control = "public, max-age=0, must-revalidate"
+
+# Narzędzia i źródła nie są publiczne
+[[redirects]]
+  from = "/tools/*"
+  to = "/404.html"
+  status = 404

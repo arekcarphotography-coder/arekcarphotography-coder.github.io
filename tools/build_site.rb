@@ -8,7 +8,6 @@
 #      /albumy/<album>/      /en/albums/<album>/       album
 #      /wyjazdy/<wyjazd>/    /en/trips/<wyjazd>/       wyjazd (event)
 #      /blog/<wpis>/         /en/blog/<wpis>/          wpis na blogu
-#      /polityka-prywatnosci/  /en/privacy-policy/
 #  • w <head>: tytuł, opis, adres kanoniczny, hreflang PL/EN, podgląd linku (Open Graph), dane strukturalne (JSON-LD)
 #  • w treści: nagłówek, opis i linki widoczne także bez JavaScriptu (dla wyszukiwarek i podglądów)
 #  • sitemap.xml (ze zdjęciami — Google Grafika), robots.txt, 404.html, obrazki podglądu linków (assets/og/*.jpg)
@@ -82,7 +81,6 @@ PATHS = {
   album:   ->(l, s) { (l == "en" ? "en/albums/" : "albumy/") + "#{s}/" },
   trip:    ->(l, s) { (l == "en" ? "en/trips/" : "wyjazdy/") + "#{s}/" },
   post:    ->(l, s) { (l == "en" ? "en/blog/" : "blog/") + "#{s}/" },
-  privacy: ->(l, _ = nil) { l == "en" ? "en/privacy-policy/" : "polityka-prywatnosci/" },
 }
 MONTHS = { "pl" => %w[stycznia lutego marca kwietnia maja czerwca lipca sierpnia września października listopada grudnia],
            "en" => %w[January February March April May June July August September October November December] }
@@ -287,53 +285,6 @@ POSTS.each do |p|
   end
   sitemap << [PATHS[:post].("pl", p[:slug]), PATHS[:post].("en", p[:slug]), []]
 end
-
-# ---------- polityka prywatności ----------
-PRIVACY = {
-  "pl" => ["Polityka prywatności", <<~HTML],
-    <p class="lead">Ta strona to portfolio fotografa samochodowego. Poniżej opisuję, jakie dane trafiają do mnie przez stronę i co się z nimi dzieje.</p>
-    <h2>Administrator danych</h2>
-    <p>Administratorem danych jest Arek Carphotography, kontakt: <a href="mailto:#{EMAIL}">#{EMAIL}</a>.</p>
-    <h2>Formularz kontaktowy i e-mail</h2>
-    <p>Gdy piszesz przez formularz albo e-mailem, przetwarzam dane, które podasz: imię, adres e-mail, opcjonalnie telefon, termin i miejsce sesji oraz treść wiadomości. Używam ich wyłącznie po to, żeby odpowiedzieć i przygotować ofertę.</p>
-    <p>Podstawa prawna: art. 6 ust. 1 lit. b RODO (działania przed zawarciem umowy na Twoje żądanie) oraz art. 6 ust. 1 lit. f RODO (prowadzenie korespondencji).</p>
-    <p>Wiadomości przechowuję tak długo, jak trwa rozmowa, a potem nie dłużej niż 12 miesięcy — chyba że dojdzie do współpracy; wtedy tak długo, jak wymagają tego przepisy (np. podatkowe).</p>
-    <h2>Komu przekazuję dane</h2>
-    <p>Wiadomości trafiają do mojej skrzynki pocztowej (Google — Gmail) oraz do dostawcy hostingu i obsługi formularza strony. Nie sprzedaję danych i nie przekazuję ich nikomu w celach marketingowych.</p>
-    <h2>Twoje prawa</h2>
-    <p>Masz prawo dostępu do swoich danych, ich sprostowania, usunięcia, ograniczenia przetwarzania, przeniesienia oraz sprzeciwu. Wystarczy napisać na <a href="mailto:#{EMAIL}">#{EMAIL}</a>. Możesz też złożyć skargę do Prezesa Urzędu Ochrony Danych Osobowych.</p>
-    <h2>Pliki cookies i inne dane w przeglądarce</h2>
-    <p>Strona nie używa plików cookies ani narzędzi śledzących. Zapamiętuje jedynie wybrany język (w pamięci przeglądarki, na Twoim urządzeniu). Czcionki są pobierane z Google Fonts, przez co Google otrzymuje adres IP Twojego urządzenia.</p>
-    <h2>Zdjęcia</h2>
-    <p>Wszystkie zdjęcia na stronie są mojego autorstwa i chroni je prawo autorskie. Jeśli jesteś na którymś z nich i chcesz, żebym je usunął — napisz.</p>
-  HTML
-  "en" => ["Privacy policy", <<~HTML],
-    <p class="lead">This website is an automotive photographer's portfolio. Below I explain what data reaches me through the site and what happens to it.</p>
-    <h2>Data controller</h2>
-    <p>The data controller is Arek Carphotography, contact: <a href="mailto:#{EMAIL}">#{EMAIL}</a>.</p>
-    <h2>Contact form and e-mail</h2>
-    <p>When you write via the form or by e-mail, I process the data you provide: name, e-mail address, optionally phone number, shoot date and location, and your message. I use it only to reply and prepare an offer.</p>
-    <p>Legal basis: Art. 6(1)(b) GDPR (steps taken at your request before entering into a contract) and Art. 6(1)(f) GDPR (handling correspondence).</p>
-    <p>I keep messages for as long as the conversation lasts and then for no longer than 12 months — unless we work together, in which case for as long as the law requires (e.g. tax rules).</p>
-    <h2>Who receives the data</h2>
-    <p>Messages go to my mailbox (Google — Gmail) and to the provider hosting the website and handling the form. I don't sell data or share it with anyone for marketing.</p>
-    <h2>Your rights</h2>
-    <p>You have the right to access, rectify, erase, restrict, port and object to the processing of your data — just write to <a href="mailto:#{EMAIL}">#{EMAIL}</a>. You can also lodge a complaint with the Polish data protection authority (Prezes Urzędu Ochrony Danych Osobowych).</p>
-    <h2>Cookies and browser storage</h2>
-    <p>This site uses no cookies and no tracking tools. It only remembers your chosen language (in browser storage on your device). Fonts are loaded from Google Fonts, so Google receives your device's IP address.</p>
-    <h2>Photos</h2>
-    <p>All photos on this site are my own work and protected by copyright. If you appear in one of them and would like it removed, just let me know.</p>
-  HTML
-}
-LANGS.each do |l|
-  alt = LANGS.to_h { |x| [x, PATHS[:privacy].(x)] }
-  title, body = PRIVACY[l]
-  block = seo_block(l, title: "#{title} | Arek Carphotography", desc: short(body.gsub(/<[^>]+>/, "")), path: alt[l], alt: alt, og: HOME_OG,
-                    page: { type: "privacy" })
-  pre = %Q|<section class="seo-pre"><div class="wrap"><article class="article">\n<h1>#{title}</h1>\n#{body}</article></div></section>|
-  write(alt[l], set_main(set_lang(set_seo(PLAIN, block), l), pre))
-end
-sitemap << [PATHS[:privacy].("pl"), PATHS[:privacy].("en"), []]
 
 # ---------- 404 ----------
 nf = set_seo(PLAIN, <<~HTML.chomp)

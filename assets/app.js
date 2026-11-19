@@ -12,7 +12,6 @@ const URLS = {
   album: (s, l = LANG) => (l === "en" ? "en/albums/" : "albumy/") + s + "/",
   trip: (s, l = LANG) => (l === "en" ? "en/trips/" : "wyjazdy/") + s + "/",
   post: (s, l = LANG) => (l === "en" ? "en/blog/" : "blog/") + s + "/",
-  privacy: (l = LANG) => l === "en" ? "en/privacy-policy/" : "polityka-prywatnosci/",
 };
 const t = k => I18N[LANG][k] ?? k;
 const L = o => o[LANG] || o.pl;
@@ -44,7 +43,7 @@ document.body.insertAdjacentHTML("afterbegin", `
   <div class="right">
     <div class="lang" role="group" aria-label="Język / Language"><button data-l="pl">PL</button>/<button data-l="en">EN</button></div>
     <div class="social">${icons}</div>
-    <button class="burger" aria-label="Menu"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 7h18M3 12h18M3 17h18"/></svg></button>
+    <button class="burger" aria-label="Menu" aria-controls="menu" aria-expanded="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path class="b1" d="M3 7h18"/><path class="b2" d="M3 12h18"/><path class="b3" d="M3 17h18"/></svg></button>
   </div>
 </div></header>`);
 document.body.insertAdjacentHTML("beforeend", `
@@ -73,20 +72,25 @@ document.body.insertAdjacentHTML("beforeend", `
     </div>
     <label><span data-i18n="form.msg"></span><textarea name="message" rows="5" required data-i18n-ph="form.msg.ph"></textarea></label>
     <input name="_gotcha" class="hp" tabindex="-1" autocomplete="off" aria-hidden="true">
-    <label class="check"><input type="checkbox" name="consent" required><span><span data-i18n="form.consent"></span> <a href="${URLS.privacy()}" data-i18n="form.privacy"></a></span></label>
     <button class="btn" type="submit" data-i18n="form.send"></button>
     <p class="fmsg" id="fmsg" role="status" aria-live="polite"></p>
   </form>
 </div></section>
-<footer><div class="wrap"><span>© 2026 Arek Carphotography · Rzeszów, Podkarpacie</span><a href="${URLS.privacy()}" data-i18n="footer.privacy"></a></div></footer>
+<footer><div class="wrap"><span>© 2026 Arek Carphotography · Rzeszów, Podkarpacie</span></div></footer>
 <div class="lb" id="lb" role="dialog" aria-modal="true">
   <button class="x" aria-label="Zamknij">×</button><button class="prev" aria-label="Poprzednie">‹</button><button class="next-b" aria-label="Następne">›</button>
   <img alt=""><div class="cap"></div>
 </div>`);
 
-const menu = $("#menu");
-$(".burger").onclick = () => menu.classList.toggle("open");
-$$("#menu a").forEach(a => a.addEventListener("click", () => menu.classList.remove("open")));
+const menu = $("#menu"), burger = $(".burger");
+const setMenu = open => {
+  menu.classList.toggle("open", open); burger.classList.toggle("on", open);
+  burger.setAttribute("aria-expanded", open); document.documentElement.classList.toggle("menu-open", open);
+};
+burger.onclick = () => setMenu(!menu.classList.contains("open"));
+$$("#menu a").forEach(a => a.addEventListener("click", () => setMenu(false)));
+addEventListener("keydown", e => { if (e.key === "Escape") setMenu(false); });
+addEventListener("resize", () => { if (innerWidth > 1180) setMenu(false); });
 const hd = $("#top");
 const onScroll = () => hd.classList.toggle("solid", scrollY > (window.heroEnd ? heroEnd() : 60));
 addEventListener("scroll", onScroll, { passive: true }); onScroll();

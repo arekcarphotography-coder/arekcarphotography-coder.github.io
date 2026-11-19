@@ -45,10 +45,10 @@ function decode(el, text) {
   })(st);
 }
 
-// Jedna pętla przewijania dla wszystkich efektów
-const scrollFns = [];
+// Jedna pętla przewijania dla wszystkich efektów (heroFns czyścimy przy przebudowie hero, np. po obróceniu telefonu)
+const scrollFns = [], heroFns = [];
 let ticking = false;
-const runScroll = () => { ticking = false; scrollFns.forEach(f => f()); };
+const runScroll = () => { ticking = false; scrollFns.forEach(f => f()); heroFns.forEach(f => f()); };
 addEventListener("scroll", () => { if (!ticking) { ticking = true; requestAnimationFrame(runScroll); } }, { passive: true });
 addEventListener("resize", () => requestAnimationFrame(runScroll));
 
@@ -112,14 +112,110 @@ function heroFrameStrip(root) {
     items.forEach((it, i) => { if (it.getBoundingClientRect().left < innerWidth * .5) a = i; });
     if (a !== act) { const first = act < 0; act = a; setCap(a, !first); }
   }
-  scrollFns.push(update);
+  heroFns.push(update);
   requestAnimationFrame(update);
-  new ResizeObserver(() => { lastW = 0; update(); }).observe(head);
-  // zdjęcia taśmy pobieramy stopniowo — te, które są najwyżej ~2 ekrany przed widokiem (oszczędność danych na telefonie)
+  const ro = new ResizeObserver(() => { lastW = 0; update(); }); ro.observe(head);
+  // zdjęcia taśmy pobieramy stopniowo — te, które są najwyżej ~2 ekrany przed widokiem
   const ahead = () => items.forEach(it => { const im = it.querySelector("img"); if (im && im.loading === "lazy" && it.getBoundingClientRect().left < innerWidth * 3) im.loading = "eager"; });
-  scrollFns.push(ahead);
-  document.readyState === "complete" ? ahead() : addEventListener("load", ahead);
-  return { lang: () => { lastW = 0; update(); if (act >= 0) setCap(act, false); } };
+  heroFns.push(ahead);
+  document.readyState === "complete" ? ahead() : addEventListener("load", ahead, { once: true });
+  return { lang: () => { lastW = 0; update(); if (act >= 0) setCap(act, false); }, destroy: () => ro.disconnect() };
+}
+
+// =====================================================================
+// TELEFON / TABLET (ekran dotykowy): ramka rozszerza się tak samo jak na komputerze, ale dalsze zdjęcia
+// to zwykła karuzela — przesuwa się sama albo palcem w bok. Przewijanie w dół prowadzi od razu do #work.
+// stacks = ekran pionowy: zdjęcia poziome po 3 (lub 2) jedno pod drugim, pionowe pojedynczo — slajd ma kształt ekranu.
+// =====================================================================
+function heroCarousel(root, stacks) {
+  root.className = "hero v2 vm";
+  const size = h => h.wide ? [h.wide.w, h.wide.h] : dims(h.a, h.n);
+  const rest = HERO.slice(1);
+  let slides;
+  if (stacks) {
+    const land = rest.filter(h => { const [w, hh] = size(h); return w > hh; }), port = rest.filter(h => { const [w, hh] = size(h); return w <= hh; });
+    const groups = [];
+    for (let i = 0; i < land.length; i += 3) groups.push(land.slice(i, i + 3));
+    // samotne zdjęcie poziome na końcu → dwa slajdy po 2
+    if (groups.length > 1 && groups[groups.length - 1].length === 1) groups[groups.length - 1].unshift(groups[groups.length - 2].pop());
+    // slajdy z kilkoma zdjęciami rozkładamy równo między pionowe
+    const n = groups.length + port.length, at = new Set(groups.map((_, k) => Math.floor(k * n / groups.length)));
+    let gi = 0, pi = 0; slides = [];
+    for (let k = 0; k < n; k++) slides.push(at.has(k) && gi < groups.length ? groups[gi++] : pi < port.length ? [port[pi++]] : groups[gi++]);
+  } else slides = rest.map(h => [h]);
+  slides.unshift([HERO[0]]);
+
+  const lab = h => `<span class="vm-lab"><b>${heroName(h)}</b>${heroMeta(h) ? `<small>${heroMeta(h)}</small>` : ""}</span>`;
+  const ph = (h, few) => {
+    const n = h.wide ? h.wide.n : h.n, [w, hh] = size(h);
+    return `<a class="vm-ph" href="${URLS.album(h.a)}" style="--r:${(w / hh).toFixed(4)}">
+      <img src="${photo(h.a, n, 1280)}" srcset="${[640, 1280, 2048].map(s => `${photo(h.a, n, s)} ${s}w`).join(", ")}"
+        sizes="${few ? "92vw" : "100vw"}" width="${w}" height="${hh}" alt="${L(findAlbum(h.a).title)} — Arek Carphotography"
+        loading="lazy" decoding="async">${lab(h)}</a>`;
+  };
+  root.innerHTML = `<div class="v2-stick">
+    <div class="v2-frame"><div class="vm-view">${slides.map((s, i) => i === 0
+      ? `<div class="vm-slide first"><a class="vm-ph first" href="${URLS.album(s[0].a)}">${heroImg(s[0], 0)}${lab(s[0])}</a></div>`
+      : `<div class="vm-slide n${s.length}">${s.map(h => ph(h, stacks)).join("")}</div>`).join("")}</div></div>
+    <div class="wrap v2-head">${headHTML()}</div>
+    <div class="wrap hero-ui vm-ui">
+      <div class="hinfo">
+        <div class="hcount"><span class="odo" aria-hidden="true"></span><span class="v4-tot">/ ${pad(slides.length)}</span></div>
+        <span class="v4-bar"><i></i></span>
+      </div>
+    </div>
+  </div>`;
+  const head = root.querySelector(".v2-head"), stick = root.querySelector(".v2-stick"), view = root.querySelector(".vm-view");
+  const slideEls = [...root.querySelectorAll(".vm-slide")], odoEl = root.querySelector(".odo");
+  odoEl.innerHTML = `<span>${"0123456789".split("").map(d => `<i>${d}</i>`).join("")}</span>`.repeat(2);
+  let E = 0, lastW = 0, act = -1, pausedTill = 0;
+
+  function measure() {
+    root.style.setProperty("--e", 0);
+    const hb = head.getBoundingClientRect(), cs = getComputedStyle(head);
+    root.style.setProperty("--ft", `${Math.round(hb.bottom - stick.getBoundingClientRect().top + 22)}px`);
+    root.style.setProperty("--fs", `${Math.round(hb.left + parseFloat(cs.paddingLeft))}px`);
+    root.style.setProperty("--fb", "16px");
+    E = innerHeight * .7;                                   // odcinek przewijania na rozszerzenie ramki
+    root.style.height = `${innerHeight + E + innerHeight * .1}px`;   // potem od razu sekcja #work
+  }
+  function setSlide(i) {
+    if (i === act) return; act = i;
+    odoEl.querySelectorAll(":scope > span").forEach((col, k) => col.style.transform = `translateY(-${+pad(i + 1)[k] * 1.2}em)`);
+    root.style.setProperty("--p", slides.length > 1 ? (i / (slides.length - 1)).toFixed(4) : 0);
+    // następny slajd pobieramy z wyprzedzeniem
+    [i + 1, i + 2].forEach(k => slideEls[k] && slideEls[k].querySelectorAll("img[loading=lazy]").forEach(im => im.loading = "eager"));
+  }
+  function update() {
+    // pasek adresu na telefonie zmienia wysokość okna przy przewijaniu — przeliczamy tylko przy zmianie szerokości
+    if (innerWidth !== lastW) { lastW = innerWidth; measure(); }
+    const y = Math.max(0, -root.getBoundingClientRect().top);
+    const e = ease(clamp(y / E));
+    root.style.setProperty("--e", e.toFixed(4));
+    const full = e > .7;
+    if (full && !root.classList.contains("full")) lastMove = Date.now();   // po rozszerzeniu pierwsze zdjęcie stoi pełne 4,5 s
+    root.classList.toggle("full", full);
+  }
+  const onSwipe = () => { const i = Math.round(view.scrollLeft / Math.max(1, view.clientWidth)); if (i !== act) lastMove = Date.now(); setSlide(i); };
+  view.addEventListener("scroll", onSwipe, { passive: true });
+  ["pointerdown", "touchstart", "wheel"].forEach(ev => view.addEventListener(ev, () => { pausedTill = Date.now() + 8000; }, { passive: true }));
+  // karuzela przesuwa się sama co 4,5 s, gdy ramka jest rozszerzona i hero jest na ekranie (dotknięcie wstrzymuje ją na 8 s)
+  let lastMove = Date.now();
+  const timer = still ? 0 : setInterval(() => {
+    const r = root.getBoundingClientRect();
+    if (!root.classList.contains("full") || Date.now() < pausedTill || document.hidden || r.bottom < innerHeight * .6) return;
+    if (Date.now() - lastMove < 4500) return;
+    lastMove = Date.now();
+    view.scrollTo({ left: ((act + 1) % slides.length) * view.clientWidth, behavior: "smooth" });
+  }, 300);
+  heroFns.push(update);
+  requestAnimationFrame(update);
+  setSlide(0);
+  const ro = new ResizeObserver(() => { lastW = 0; update(); }); ro.observe(head);
+  return {
+    lang: () => rebuildHero(),   // podpisy są w slajdach — po zmianie języka budujemy hero od nowa
+    destroy: () => { ro.disconnect(); clearInterval(timer); },
+  };
 }
 
 // ---- start ----
@@ -131,9 +227,18 @@ HERO.splice(0, HERO.length, ...HERO.filter(h => {
   return ok;
 }));
 // Błąd w hero nie może zablokować reszty strony (portfolio, albumy, blog)
-let HERO_UI = { lang() {} };
-try { HERO_UI = heroFrameStrip(heroRoot); }
-catch (e) { console.error("Hero:", e); heroRoot.style.height = "auto"; }
+// Ekran dotykowy (telefon, tablet) albo wąskie okno → karuzela; komputer → taśma przesuwana przewijaniem
+const mqTouch = matchMedia("(hover: none) and (pointer: coarse), (max-width: 760px)"), mqPortrait = matchMedia("(orientation: portrait)");
+let HERO_UI = { lang() {}, destroy() {} };
+function rebuildHero() {
+  try { HERO_UI.destroy(); } catch (e) {}
+  heroFns.length = 0;
+  try { HERO_UI = mqTouch.matches ? heroCarousel(heroRoot, mqPortrait.matches) : heroFrameStrip(heroRoot); }
+  catch (e) { console.error("Hero:", e); heroRoot.style.height = "auto"; HERO_UI = { lang() {}, destroy() {} }; }
+  heroRoot.querySelectorAll("[data-i18n]").forEach(el => el.textContent = t(el.dataset.i18n));
+}
+rebuildHero();
+[mqTouch, mqPortrait].forEach(m => m.addEventListener ? m.addEventListener("change", rebuildHero) : m.addListener(rebuildHero));
 window.heroLang = () => { try { HERO_UI.lang(); } catch (e) { console.error("Hero:", e); } };
 // Pasek nagłówka strony robi się ciemny dopiero po wyjściu z hero
 window.heroEnd = () => heroRoot.offsetTop + heroRoot.offsetHeight - 90;

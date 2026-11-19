@@ -5,22 +5,16 @@
     <xhtml:link rel="alternate" hreflang="en" href="https://arekcarphotography.pl/en/"/>
     <xhtml:link rel="alternate" hreflang="x-default" href="https://arekcarphotography.pl/"/>
     <image:image><image:loc>https://arekcarphotography.pl/assets/photos/pagani-zonda-cervino/dsc01027-2048.webp</image:loc></image:image>
-    <image:image><image:loc>https://arekcarphotography.pl/assets/photos/pagani-zonda-barchetta/dsc02728-2048.webp</image:loc></image:image>
-    <image:image><image:loc>https://arekcarphotography.pl/assets/photos/pagani-zonda-barchetta/dsc01972-2048.webp</image:loc></image:image>
-    <image:image><image:loc>https://arekcarphotography.pl/assets/photos/pagani-zonda-cervino/dsc01037-2048.webp</image:loc></image:image>
-    <image:image><image:loc>https://arekcarphotography.pl/assets/photos/pagani-zonda-cervino/dsc00890-2048.webp</image:loc></image:image>
-    <image:image><image:loc>https://arekcarphotography.pl/assets/photos/pagani-huayra-epitome/dsc06716-2048.webp</image:loc></image:image>
-    <image:image><image:loc>https://arekcarphotography.pl/assets/photos/pagani-huayra-epitome/dsc06706-2048.webp</image:loc></image:image>
-    <image:image><image:loc>https://arekcarphotography.pl/assets/photos/martini-rally/dsc07858-wide-2048.webp</image:loc></image:image>
     <image:image><image:loc>https://arekcarphotography.pl/assets/photos/the-ice-dzien-0/dsc04858-2048.webp</image:loc></image:image>
-    <image:image><image:loc>https://arekcarphotography.pl/assets/photos/the-ice-padok/dsc06058-2048.webp</image:loc></image:image>
-    <image:image><image:loc>https://arekcarphotography.pl/assets/photos/the-ice-panning/bolideczarny-2048.webp</image:loc></image:image>
-    <image:image><image:loc>https://arekcarphotography.pl/assets/photos/the-ice-panning/dsc06245-2048.webp</image:loc></image:image>
+    <image:image><image:loc>https://arekcarphotography.pl/assets/photos/pagani-zonda-cervino/dsc00890-2048.webp</image:loc></image:image>
     <image:image><image:loc>https://arekcarphotography.pl/assets/photos/the-ice-padok/dsc06669-2048.webp</image:loc></image:image>
+    <image:image><image:loc>https://arekcarphotography.pl/assets/photos/pagani-zonda-barchetta/dsc02728-2048.webp</image:loc></image:image>
     <image:image><image:loc>https://arekcarphotography.pl/assets/photos/the-ice-padok/dsc09210-2048.webp</image:loc></image:image>
+    <image:image><image:loc>https://arekcarphotography.pl/assets/photos/pagani-huayra-epitome/dsc06716-2048.webp</image:loc></image:image>
+    <image:image><image:loc>https://arekcarphotography.pl/assets/photos/the-ice-panning/bolideczarny-2048.webp</image:loc></image:image>
+    <image:image><image:loc>https://arekcarphotography.pl/assets/photos/pagani-zonda-cervino/dsc01037-2048.webp</image:loc></image:image>
     <image:image><image:loc>https://arekcarphotography.pl/assets/photos/the-ice-padok/dsc08928-2048.webp</image:loc></image:image>
     <image:image><image:loc>https://arekcarphotography.pl/assets/photos/the-ice-padok/dsc07259-2048.webp</image:loc></image:image>
-    <image:image><image:loc>https://arekcarphotography.pl/assets/photos/koenigsegg-st-moritz/dsc05543-2048.webp</image:loc></image:image>
   </url>
   <url><loc>https://arekcarphotography.pl/en/</loc>
     <xhtml:link rel="alternate" hreflang="pl" href="https://arekcarphotography.pl/"/>
@@ -1871,15 +1865,5 @@
     <xhtml:link rel="alternate" hreflang="pl" href="https://arekcarphotography.pl/blog/jak-przygotowac-auto-do-sesji/"/>
     <xhtml:link rel="alternate" hreflang="en" href="https://arekcarphotography.pl/en/blog/jak-przygotowac-auto-do-sesji/"/>
     <xhtml:link rel="alternate" hreflang="x-default" href="https://arekcarphotography.pl/blog/jak-przygotowac-auto-do-sesji/"/>
-  </url>
-  <url><loc>https://arekcarphotography.pl/polityka-prywatnosci/</loc>
-    <xhtml:link rel="alternate" hreflang="pl" href="https://arekcarphotography.pl/polityka-prywatnosci/"/>
-    <xhtml:link rel="alternate" hreflang="en" href="https://arekcarphotography.pl/en/privacy-policy/"/>
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://arekcarphotography.pl/polityka-prywatnosci/"/>
-  </url>
-  <url><loc>https://arekcarphotography.pl/en/privacy-policy/</loc>
-    <xhtml:link rel="alternate" hreflang="pl" href="https://arekcarphotography.pl/polityka-prywatnosci/"/>
-    <xhtml:link rel="alternate" hreflang="en" href="https://arekcarphotography.pl/en/privacy-policy/"/>
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://arekcarphotography.pl/polityka-prywatnosci/"/>
   </url>
 </urlset>

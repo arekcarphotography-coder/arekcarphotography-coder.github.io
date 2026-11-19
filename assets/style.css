@@ -8,7 +8,9 @@ img{display:block;max-width:100%;height:auto}
 
 /* NAV */
 header{position:fixed;inset:0 0 auto;z-index:50;transition:background .4s,padding .4s;padding:22px 0}
-header.solid{background:rgba(13,13,13,.82);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);padding:12px 0;border-bottom:1px solid var(--line)}
+/* tło paska jest osobną warstwą: rozmycie (backdrop-filter) na samym <header> zamykałoby w nim menu na telefonie */
+header::before{content:"";position:absolute;inset:0;z-index:-1;background:rgba(13,13,13,.82);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-bottom:1px solid var(--line);opacity:0;transition:opacity .4s}
+header.solid{padding:12px 0}header.solid::before{opacity:1}
 .nav{display:flex;align-items:center;justify-content:space-between;gap:20px}
 .logo{font-family:Jost,sans-serif;letter-spacing:.18em;font-size:clamp(14px,1.6vw,20px);text-transform:uppercase;white-space:nowrap}
 .links{display:flex;gap:30px;font-family:Jost;font-size:14px;letter-spacing:.14em;text-transform:uppercase}
@@ -24,13 +26,24 @@ header.solid{background:rgba(13,13,13,.82);backdrop-filter:blur(14px);-webkit-ba
 .lang button{background:none;border:0;color:inherit;font:inherit;letter-spacing:inherit;cursor:pointer;padding:6px 4px;transition:color .2s}
 .lang button.on,.lang button:hover{color:var(--fg)}
 .burger{display:none;background:none;border:0;color:var(--fg);width:28px;height:28px;cursor:pointer;position:relative;z-index:2}
+.burger path{transform-origin:12px 12px;transition:transform .45s cubic-bezier(.7,0,.2,1),opacity .25s}
+.burger.on .b1{transform:translateY(5px) rotate(45deg)}.burger.on .b2{opacity:0}.burger.on .b3{transform:translateY(-5px) rotate(-45deg)}
+html.menu-open{overflow:hidden}
 .links a,.lang{white-space:nowrap}
 header:not(.solid) .nav{text-shadow:0 1px 8px rgba(0,0,0,.6)}
 header:not(.solid) .lang{color:#ddd}
 header:not(.solid) .social svg,header:not(.solid) .burger svg{filter:drop-shadow(0 1px 4px rgba(0,0,0,.6))}
 @media(max-width:1180px){
-  .links,.right .social{display:none}.burger{display:block}.right{gap:12px}
-  .links.open{display:flex;position:fixed;inset:0;background:var(--bg);flex-direction:column;align-items:center;justify-content:center;font-size:24px;gap:34px}
+  .right .social{display:none}.burger{display:block}.right{gap:12px}
+  /* menu na telefonie: zasłona zjeżdża z góry, a linki wchodzą kolejno od dołu */
+  .links{position:fixed;inset:0;background:var(--bg);flex-direction:column;align-items:center;justify-content:center;font-size:24px;gap:34px;
+    visibility:hidden;clip-path:inset(0 0 100% 0);transition:clip-path .6s cubic-bezier(.7,0,.2,1),visibility 0s .6s}
+  .links.open{visibility:visible;clip-path:inset(0);transition:clip-path .6s cubic-bezier(.7,0,.2,1),visibility 0s}
+  .links a{opacity:0;transform:translateY(26px);transition:opacity .3s,transform .3s}
+  .links.open a{opacity:.85;transform:none;transition:opacity .5s,transform .7s cubic-bezier(.2,.8,.2,1)}
+  .links.open a:nth-child(1){transition-delay:.22s}.links.open a:nth-child(2){transition-delay:.28s}.links.open a:nth-child(3){transition-delay:.34s}
+  .links.open a:nth-child(4){transition-delay:.4s}.links.open a:nth-child(5){transition-delay:.46s}
+  .links.open a:hover{opacity:1}
 }
 
 /* HERO „Ramka + taśma” (assets/hero.js). Zdjęcie nigdy nie jest powiększane, rozmywane ani przyciemniane:
@@ -96,6 +109,30 @@ header:not(.solid) .social svg,header:not(.solid) .burger svg{filter:drop-shadow
 .v4-ui .hinfo{text-shadow:0 1px 10px rgba(0,0,0,.85)}
 .v4-bar{display:block;position:relative;width:180px;height:1px;margin-top:14px;background:rgba(255,255,255,.25)}
 .v4-bar i{position:absolute;inset:0;background:var(--accent);transform:scaleX(var(--p,0));transform-origin:left}
+
+/* ---------- KARUZELA NA TELEFONIE (klasy vm-*) ---------- */
+/* przewijanie w bok palcem (z przyciąganiem do slajdu); w dół przewija się strona */
+.vm-view{position:absolute;inset:0;display:flex;overflow-x:auto;overflow-y:hidden;scroll-snap-type:x mandatory;overscroll-behavior-x:contain;scrollbar-width:none;touch-action:pan-x pan-y}
+.vm-view::-webkit-scrollbar{display:none}
+.vm-slide{flex:0 0 100%;height:100%;scroll-snap-align:start;scroll-snap-stop:always;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;
+  padding:76px 16px 70px;container-type:size}
+.vm-slide.first{padding:0}
+.vm-ph{position:relative;flex:none;display:block;aspect-ratio:var(--r);background:#111;border-radius:3px;overflow:hidden}
+.vm-ph img{width:100%;height:100%;object-fit:cover}
+.vm-ph.first{width:100%;height:100%;aspect-ratio:auto;border-radius:0}
+/* zdjęcia zachowują proporcje: 1 pionowe albo 2–3 poziome jedno pod drugim mieszczą się w wysokości ekranu */
+.vm-slide.n1 .vm-ph{width:min(100cqw, 100cqh * var(--r))}
+.vm-slide.n2 .vm-ph{width:min(100cqw, (100cqh - 8px) / 2 * var(--r))}
+.vm-slide.n3 .vm-ph{width:min(100cqw, (100cqh - 16px) / 3 * var(--r))}
+.vm-lab{position:absolute;left:10px;right:10px;bottom:8px;text-shadow:0 1px 8px rgba(0,0,0,.9);opacity:0;transform:translateY(8px);transition:opacity .6s,transform .6s cubic-bezier(.2,.8,.2,1)}
+.vm.full .vm-lab{opacity:1;transform:none}
+.vm-lab b{display:block;font:400 15px/1.25 Jost;letter-spacing:.03em}
+.vm-lab small{display:block;margin-top:2px;font:500 9px Inter;letter-spacing:.16em;text-transform:uppercase;color:#d6d6d6}
+.vm-ph.first .vm-lab{left:clamp(16px,4vw,48px);right:110px;bottom:22px}
+.vm-ph.first .vm-lab b{font-size:21px}.vm-ph.first .vm-lab small{font-size:11px;margin-top:6px}
+.hero.vm .vm-ui{left:auto;right:0;justify-content:flex-end}
+.vm-ui .hinfo{align-items:flex-end;text-align:right;text-shadow:0 1px 10px rgba(0,0,0,.85)}
+.vm-ui .v4-bar{width:80px}
 
 @keyframes pulse{0%,100%{opacity:.2}50%{opacity:1}}
 @media(max-width:760px){
@@ -211,7 +248,12 @@ footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px}
 .about-p{color:#c4c4c4;margin-bottom:14px;max-width:560px}
 
 /* BLOG — karty */
-.post .more{display:inline-block;margin-top:12px;font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--accent)}
+.post .more{position:relative;display:inline-block;margin-top:12px;font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--accent)}
+/* najechanie jak w menu: złota linia rośnie od lewej pod tytułem i pod „Czytaj dalej” */
+.post h3 span{background:linear-gradient(var(--accent),var(--accent)) 0 100%/0 1px no-repeat;padding-bottom:3px;transition:background-size .35s}
+.post .more::after{content:"";position:absolute;left:0;bottom:-4px;height:1px;width:0;background:var(--accent);transition:width .3s}
+.post a:hover h3 span,.post a:focus-visible h3 span{background-size:100% 1px}
+.post a:hover .more::after,.post a:focus-visible .more::after{width:100%}
 
 /* KONTAKT — formularz */
 .contact-grid{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,7fr);gap:clamp(32px,6vw,90px);align-items:start}

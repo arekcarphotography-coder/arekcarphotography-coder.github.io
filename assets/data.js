@@ -182,22 +182,16 @@ ALBUMS.forEach(a => { a.photos = PHOTOS[a.slug] || []; a.cover = a.photos[0][0];
 // t = własny podpis zamiast tytułu albumu, np. t: { pl: "Bugatti Bolide", en: "Bugatti Bolide" }
 const HERO = [
   { a: "pagani-zonda-cervino", n: "dsc01027", pos: "50% 55%", m: "dsc01014" },
-  { a: "pagani-zonda-barchetta", n: "dsc02728", pos: "55% 60%", m: "dsc02550" },
-  { a: "pagani-zonda-barchetta", n: "dsc01972", pos: "50% 50%", detail: true },
-  { a: "pagani-zonda-cervino", n: "dsc01037", pos: "50% 70%" },
-  { a: "pagani-zonda-cervino", n: "dsc00890", pos: "45% 50%", detail: true },
-  { a: "pagani-huayra-epitome", n: "dsc06716", pos: "45% 60%" },
-  { a: "pagani-huayra-epitome", n: "dsc06706", pos: "50% 55%" },
-  { a: "martini-rally", n: "dsc07858-wide", pos: "45% 55%" },
   { a: "the-ice-dzien-0", n: "dsc04858", pos: "50% 60%", t: { pl: "Klasyczne Ferrari na śniegu", en: "A classic Ferrari in the snow" } },
-  { a: "the-ice-padok", n: "dsc06058", pos: "50% 62%", t: { pl: "Pagani Zonda w karbonie", en: "Pagani Zonda in bare carbon" } },
-  { a: "the-ice-panning", n: "bolideczarny", pos: "50% 55%", t: { pl: "Bugatti Bolide", en: "Bugatti Bolide" } },
-  { a: "the-ice-panning", n: "dsc06245", pos: "50% 50%", t: { pl: "Bugatti Bolide", en: "Bugatti Bolide" } },
+  { a: "pagani-zonda-cervino", n: "dsc00890", pos: "45% 50%", detail: true },
   { a: "the-ice-padok", n: "dsc06669", pos: "50% 60%", t: { pl: "Trzy Bugatti Bolide", en: "Three Bugatti Bolides" } },
+  { a: "pagani-zonda-barchetta", n: "dsc02728", pos: "55% 60%", m: "dsc02550" },
   { a: "the-ice-padok", n: "dsc09210", pos: "50% 62%", t: { pl: "Kibic na czterech łapach", en: "A four-legged fan" } },
+  { a: "pagani-huayra-epitome", n: "dsc06716", pos: "45% 60%" },
+  { a: "the-ice-panning", n: "bolideczarny", pos: "50% 55%", t: { pl: "Bugatti Bolide", en: "Bugatti Bolide" } },
+  { a: "pagani-zonda-cervino", n: "dsc01037", pos: "50% 70%" },
   { a: "the-ice-padok", n: "dsc08928", pos: "50% 62%", t: { pl: "Arturo Merzario", en: "Arturo Merzario" } },
   { a: "the-ice-padok", n: "dsc07259", pos: "50% 55%", t: { pl: "Goście The ICE", en: "The ICE guests" } },
-  { a: "koenigsegg-st-moritz", n: "dsc05543", pos: "50% 52%", t: { pl: "Koenigsegg na lodzie", en: "Koenigsegg on the ice" } },
 ];
 
 // Wpisy na blogu. Treść: bloki { h: nagłówek, p: akapit(y), photos: [[album, zdjęcie], ...], album: link do albumu }
@@ -309,7 +303,7 @@ const I18N = {
     "form.type.collab": "Współpraca / dealer", "form.type.other": "Inne",
     "form.date": "Preferowany termin (opcjonalnie)", "form.place": "Miejsce / miasto (opcjonalnie)",
     "form.msg": "Wiadomość", "form.msg.ph": "Jakie auto, jaki cel zdjęć, Twoje pomysły…",
-    "form.consent": "Zgadzam się na przetwarzanie moich danych w celu odpowiedzi na wiadomość.", "form.privacy": "Polityka prywatności", "footer.privacy": "Polityka prywatności",
+
     "form.send": "Wyślij wiadomość", "form.sending": "Wysyłanie…",
     "form.ok": "Dzięki! Wiadomość wysłana — odezwę się wkrótce.",
     "form.mail": "Otworzyłem Twój program pocztowy z gotową wiadomością — wystarczy kliknąć „Wyślij”.",
@@ -345,7 +339,7 @@ const I18N = {
     "form.type.collab": "Collaboration / dealer", "form.type.other": "Other",
     "form.date": "Preferred date (optional)", "form.place": "Location / city (optional)",
     "form.msg": "Message", "form.msg.ph": "Which car, what the photos are for, your ideas…",
-    "form.consent": "I agree to my data being processed in order to reply to my message.", "form.privacy": "Privacy policy", "footer.privacy": "Privacy policy",
+
     "form.send": "Send message", "form.sending": "Sending…",
     "form.ok": "Thanks! Your message has been sent — I'll be in touch soon.",
     "form.mail": "I've opened your e-mail app with the message ready — just hit “Send”.",

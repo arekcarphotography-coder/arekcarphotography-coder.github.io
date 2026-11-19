@@ -180,15 +180,16 @@ ALBUMS.forEach(a => { a.photos = PHOTOS[a.slug] || []; a.cover = a.photos[0][0];
 // wide = osobny poziomy kadr na szerokie ekrany (pionowy oryginał zostaje na telefony),
 // m = pionowe zdjęcie całego auta na telefony (z tego samego albumu), detail = zbliżenie,
 // t = własny podpis zamiast tytułu albumu, np. t: { pl: "Bugatti Bolide", en: "Bugatti Bolide" }
+// mob = pionowa wersja kadru do karuzeli na telefonie trzymanym pionowo ({ n, w, h }, opcjonalnie a = inny album)
 const HERO = [
   { a: "pagani-zonda-cervino", n: "dsc01027", pos: "50% 55%", m: "dsc01014" },
-  { a: "the-ice-dzien-0", n: "dsc04858", pos: "50% 60%", t: { pl: "Klasyczne Ferrari na śniegu", en: "A classic Ferrari in the snow" } },
-  { a: "pagani-zonda-cervino", n: "dsc00890", pos: "45% 50%", detail: true },
-  { a: "the-ice-padok", n: "dsc06669", pos: "50% 60%", t: { pl: "Trzy Bugatti Bolide", en: "Three Bugatti Bolides" } },
-  { a: "pagani-zonda-barchetta", n: "dsc02728", pos: "55% 60%", m: "dsc02550" },
+  { a: "the-ice-dzien-0", n: "dsc04858", pos: "50% 60%", mob: { n: "dsc04851", w: 3981, h: 5972 }, t: { pl: "Klasyczne Ferrari na śniegu", en: "A classic Ferrari in the snow" } },
+  { a: "pagani-zonda-cervino", n: "dsc00890", pos: "45% 50%", detail: true, mob: { n: "dsc00871", w: 4000, h: 6000 } },
+  { a: "the-ice-padok", n: "dsc06669", pos: "50% 60%", mob: { a: "bugatti-bolide", n: "dsc06670-2", w: 4000, h: 6000 }, t: { pl: "Trzy Bugatti Bolide", en: "Three Bugatti Bolides" } },
+  { a: "pagani-zonda-barchetta", n: "dsc02728", pos: "55% 60%", m: "dsc02550", mob: { n: "dsc02703-m", w: 3493, h: 5240 } },
   { a: "the-ice-padok", n: "dsc09210", pos: "50% 62%", t: { pl: "Kibic na czterech łapach", en: "A four-legged fan" } },
   { a: "pagani-huayra-epitome", n: "dsc06716", pos: "45% 60%" },
-  { a: "the-ice-panning", n: "bolideczarny", pos: "50% 55%", t: { pl: "Bugatti Bolide", en: "Bugatti Bolide" } },
+  { a: "the-ice-panning", n: "bolideczarny", pos: "50% 55%", mob: { n: "bolide-pion", w: 4000, h: 6000 }, t: { pl: "Bugatti Bolide", en: "Bugatti Bolide" } },
   { a: "pagani-zonda-cervino", n: "dsc01037", pos: "50% 70%" },
   { a: "the-ice-padok", n: "dsc08928", pos: "50% 62%", t: { pl: "Arturo Merzario", en: "Arturo Merzario" } },
   { a: "the-ice-padok", n: "dsc07259", pos: "50% 55%", t: { pl: "Goście The ICE", en: "The ICE guests" } },

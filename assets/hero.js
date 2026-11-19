@@ -125,11 +125,17 @@ function heroFrameStrip(root) {
 // =====================================================================
 // TELEFON / TABLET (ekran dotykowy): ramka rozszerza się tak samo jak na komputerze, ale dalsze zdjęcia
 // to zwykła karuzela — przesuwa się sama albo palcem w bok. Przewijanie w dół prowadzi od razu do #work.
-// stacks = ekran pionowy: zdjęcia poziome po 3 (lub 2) jedno pod drugim, pionowe pojedynczo — slajd ma kształt ekranu.
+// stacks = ekran pionowy: każdy kadr w wersji pionowej (pole mob w HERO); poziome bez wersji pionowej
+// stają po 3 (lub 2) jedno pod drugim — slajd ma kształt ekranu.
+// Karuzela działa dopiero po rozszerzeniu zdjęcia; wcześniej przesuwanie w bok jest zablokowane.
 // =====================================================================
+const CAROUSEL_MS = 3000;   // co ile przesuwa się karuzela
 function heroCarousel(root, stacks) {
   root.className = "hero v2 vm";
-  const size = h => h.wide ? [h.wide.w, h.wide.h] : dims(h.a, h.n);
+  // na pionowym ekranie bierzemy pionową wersję kadru (mob); podpis i link zostają od kadru z HERO
+  const shot = h => stacks && h.mob ? { a: h.mob.a || h.a, n: h.mob.n, w: h.mob.w, h: h.mob.h }
+    : h.wide ? { a: h.a, n: h.wide.n, w: h.wide.w, h: h.wide.h } : { a: h.a, n: h.n };
+  const size = h => { const s = shot(h); return s.w ? [s.w, s.h] : dims(s.a, s.n); };
   const rest = HERO.slice(1);
   let slides;
   if (stacks) {
@@ -147,9 +153,9 @@ function heroCarousel(root, stacks) {
 
   const lab = h => `<span class="vm-lab"><b>${heroName(h)}</b>${heroMeta(h) ? `<small>${heroMeta(h)}</small>` : ""}</span>`;
   const ph = (h, few) => {
-    const n = h.wide ? h.wide.n : h.n, [w, hh] = size(h);
+    const { a, n } = shot(h), [w, hh] = size(h);
     return `<a class="vm-ph" href="${URLS.album(h.a)}" style="--r:${(w / hh).toFixed(4)}">
-      <img src="${photo(h.a, n, 1280)}" srcset="${[640, 1280, 2048].map(s => `${photo(h.a, n, s)} ${s}w`).join(", ")}"
+      <img src="${photo(a, n, 1280)}" srcset="${[640, 1280, 2048].map(s => `${photo(a, n, s)} ${s}w`).join(", ")}"
         sizes="${few ? "92vw" : "100vw"}" width="${w}" height="${hh}" alt="${L(findAlbum(h.a).title)} — Arek Carphotography"
         loading="lazy" decoding="async">${lab(h)}</a>`;
   };
@@ -160,7 +166,11 @@ function heroCarousel(root, stacks) {
     <div class="wrap v2-head">${headHTML()}</div>
     <div class="wrap hero-ui vm-ui">
       <div class="hinfo">
-        <div class="hcount"><span class="odo" aria-hidden="true"></span><span class="v4-tot">/ ${pad(slides.length)}</span></div>
+        <div class="vm-nav">
+          <button class="vm-arrow vm-prev" type="button" aria-label="${LANG === "pl" ? "Poprzednie zdjęcie" : "Previous photo"}"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></button>
+          <div class="hcount"><span class="odo" aria-hidden="true"></span><span class="v4-tot">/ ${pad(slides.length)}</span></div>
+          <button class="vm-arrow vm-next" type="button" aria-label="${LANG === "pl" ? "Następne zdjęcie" : "Next photo"}"><svg viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"/></svg></button>
+        </div>
         <span class="v4-bar"><i></i></span>
       </div>
     </div>
@@ -192,22 +202,27 @@ function heroCarousel(root, stacks) {
     const y = Math.max(0, -root.getBoundingClientRect().top);
     const e = ease(clamp(y / E));
     root.style.setProperty("--e", e.toFixed(4));
-    const full = e > .7;
-    if (full && !root.classList.contains("full")) lastMove = Date.now();   // po rozszerzeniu pierwsze zdjęcie stoi pełne 4,5 s
+    const full = e > .7, was = root.classList.contains("full");
+    if (full && !was) lastMove = Date.now();   // po rozszerzeniu pierwsze zdjęcie chwilę stoi
+    // po zwinięciu ramki karuzela wraca do pierwszego zdjęcia (w ramce zawsze jest główne zdjęcie)
+    if (!full && was && view.scrollLeft) view.scrollTo({ left: 0, behavior: still ? "auto" : "smooth" });
     root.classList.toggle("full", full);
   }
+  const go = i => { lastMove = Date.now(); view.scrollTo({ left: ((i + slides.length) % slides.length) * view.clientWidth, behavior: still ? "auto" : "smooth" }); };
   const onSwipe = () => { const i = Math.round(view.scrollLeft / Math.max(1, view.clientWidth)); if (i !== act) lastMove = Date.now(); setSlide(i); };
   view.addEventListener("scroll", onSwipe, { passive: true });
-  ["pointerdown", "touchstart", "wheel"].forEach(ev => view.addEventListener(ev, () => { pausedTill = Date.now() + 8000; }, { passive: true }));
-  // karuzela przesuwa się sama co 4,5 s, gdy ramka jest rozszerzona i hero jest na ekranie (dotknięcie wstrzymuje ją na 8 s)
+  ["pointerdown", "touchstart", "wheel"].forEach(ev => view.addEventListener(ev, () => { pausedTill = Date.now() + 6000; }, { passive: true }));
+  // strzałki (działają tylko przy rozszerzonym zdjęciu); kliknięcie wstrzymuje automat na 6 s
+  root.querySelector(".vm-arrow.vm-prev").onclick = () => { pausedTill = Date.now() + 6000; go(act - 1); };
+  root.querySelector(".vm-arrow.vm-next").onclick = () => { pausedTill = Date.now() + 6000; go(act + 1); };
+  // karuzela przesuwa się sama co CAROUSEL_MS, gdy ramka jest rozszerzona i hero jest na ekranie
   let lastMove = Date.now();
   const timer = still ? 0 : setInterval(() => {
     const r = root.getBoundingClientRect();
     if (!root.classList.contains("full") || Date.now() < pausedTill || document.hidden || r.bottom < innerHeight * .6) return;
-    if (Date.now() - lastMove < 4500) return;
-    lastMove = Date.now();
-    view.scrollTo({ left: ((act + 1) % slides.length) * view.clientWidth, behavior: "smooth" });
-  }, 300);
+    if (Date.now() - lastMove < CAROUSEL_MS) return;
+    go(act + 1);
+  }, 250);
   heroFns.push(update);
   requestAnimationFrame(update);
   setSlide(0);

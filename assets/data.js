@@ -8,10 +8,10 @@ const SOCIAL = [
 const EMAIL = "arek.carphotography@gmail.com";
 // Adres strony w internecie (bez „/” na końcu) — używany w adresach kanonicznych, sitemap i podglądach linków.
 // Po kupnie domeny zmień tutaj i uruchom: ruby -E UTF-8 tools/build_site.rb
-const SITE_URL = "https://arekcarphotography-coder.github.io";
-// Formularz kontaktowy: "netlify" = Netlify Forms (hosting na Netlify), adres URL = np. Formspree ("https://formspree.io/f/xxxxxxx"),
+const SITE_URL = "https://arekcarphotography.pl";
+// Formularz kontaktowy: "kontakt.php" = skrypt PHP na hostingu (Hostido) wysyła e-mail, "netlify" = Netlify Forms, adres URL = np. Formspree ("https://formspree.io/f/xxxxxxx"),
 // puste = formularz otwiera program pocztowy z gotową wiadomością.
-const FORM_ENDPOINT = "netlify";
+const FORM_ENDPOINT = "kontakt.php";
 
 // Filtry galerii na stronie głównej
 const CATS = {

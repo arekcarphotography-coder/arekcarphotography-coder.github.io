@@ -102,12 +102,12 @@ function applyLang() {
 }
 
 // ---- Formularz kontaktowy ----
-// FORM_ENDPOINT = "netlify" → Netlify Forms (wiadomości w panelu Netlify + powiadomienie e-mail),
+// FORM_ENDPOINT = "kontakt.php" → skrypt PHP na Hostido wysyła e-mail, "netlify" → Netlify Forms (wiadomości w panelu Netlify + powiadomienie e-mail),
 // adres URL (np. Formspree) → wysyłka w tle, puste → program pocztowy z gotową treścią.
 const cform = $("#cform"), fmsg = $("#fmsg");
-// Strona otwarta lokalnie (ten Mac, sieć domowa, tunel) albo na GitHub Pages (tam nie ma Netlify Forms) — formularz otwiera wtedy program pocztowy
+// Strona otwarta lokalnie (ten Mac, sieć domowa, tunel) albo na GitHub Pages (tam nie ma PHP ani Netlify Forms) — formularz otwiera wtedy program pocztowy
 const isLocal = /^(localhost|127\.0\.0\.1|\[::1\]|192\.168\.\d+\.\d+|10\.\d+\.\d+\.\d+|172\.(1[6-9]|2\d|3[01])\.\d+\.\d+)$/.test(location.hostname) || /\.(lhr\.life|localhost\.run|github\.io)$/.test(location.hostname) || location.protocol === "file:";
-const FORM_MODE = FORM_ENDPOINT === "netlify" && isLocal ? "" : FORM_ENDPOINT;
+const FORM_MODE = isLocal ? "" : FORM_ENDPOINT;
 cform.addEventListener("submit", async e => {
   e.preventDefault();
   fmsg.className = "fmsg";

@@ -150,7 +150,7 @@ header:not(.solid) .social svg,header:not(.solid) .burger svg{filter:drop-shadow
 .lnk{position:relative;font:500 13px Inter;letter-spacing:.2em;text-transform:uppercase;color:var(--fg);padding:6px 0}
 .lnk::after{content:"";position:absolute;left:0;right:0;bottom:0;height:1px;background:var(--accent);transform:scaleX(.3);transform-origin:left;transition:transform .45s cubic-bezier(.2,.8,.2,1)}
 .lnk:hover::after{transform:none}
-@keyframes fade{to{opacity:1}}
+@keyframes fade{from{opacity:0}}
 @keyframes fadeUp{from{opacity:0;transform:translateY(18px)}}
 .hname i{font-style:normal;color:var(--accent);opacity:.75}
 
@@ -332,7 +332,7 @@ footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px}
 
 /* LIGHTBOX */
 .lb{position:fixed;inset:0;z-index:100;background:rgba(5,5,5,.96);display:none;align-items:center;justify-content:center}
-.lb.open{display:flex;animation:fade .3s forwards;opacity:0}
+.lb.open{display:flex;animation:fade .3s}
 .lb img{max-width:92vw;max-height:84vh;object-fit:contain}
 .lb button{position:absolute;background:none;border:0;color:#fff;font-size:34px;cursor:pointer;padding:16px;opacity:.7}
 .lb button:hover{opacity:1}

@@ -164,13 +164,11 @@ function heroCarousel(root, stacks) {
       ? `<div class="vm-slide first"><a class="vm-ph first" href="${URLS.album(s[0].a)}">${heroImg(s[0], 0)}${lab(s[0])}</a></div>`
       : `<div class="vm-slide n${s.length}">${s.map(h => ph(h, stacks)).join("")}</div>`).join("")}</div></div>
     <div class="wrap v2-head">${headHTML()}</div>
+    <button class="vm-arrow vm-prev" type="button" aria-label="${LANG === "pl" ? "Poprzednie zdjęcie" : "Previous photo"}"><svg viewBox="0 0 24 24"><path d="M15 4l-8 8 8 8"/></svg></button>
+    <button class="vm-arrow vm-next" type="button" aria-label="${LANG === "pl" ? "Następne zdjęcie" : "Next photo"}"><svg viewBox="0 0 24 24"><path d="M9 4l8 8-8 8"/></svg></button>
     <div class="wrap hero-ui vm-ui">
       <div class="hinfo">
-        <div class="vm-nav">
-          <button class="vm-arrow vm-prev" type="button" aria-label="${LANG === "pl" ? "Poprzednie zdjęcie" : "Previous photo"}"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></button>
-          <div class="hcount"><span class="odo" aria-hidden="true"></span><span class="v4-tot">/ ${pad(slides.length)}</span></div>
-          <button class="vm-arrow vm-next" type="button" aria-label="${LANG === "pl" ? "Następne zdjęcie" : "Next photo"}"><svg viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"/></svg></button>
-        </div>
+        <div class="hcount"><span class="odo" aria-hidden="true"></span><span class="v4-tot">/ ${pad(slides.length)}</span></div>
         <span class="v4-bar"><i></i></span>
       </div>
     </div>

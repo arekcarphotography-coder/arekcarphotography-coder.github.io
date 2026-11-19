@@ -1,0 +1,151 @@
+<!doctype html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<base href="/">
+<!-- SEO:START (generowane przez tools/build_site.rb — nie edytuj ręcznie) -->
+<title>Fotograf samochodowy Rzeszów, Podkarpacie i cała Polska | Arek Carphotography</title>
+<meta name="description" content="Fotografia samochodowa: sesje aut, supercary, klasyki i projekty tuningowe na Podkarpaciu i w całej Polsce oraz relacje z eventów motoryzacyjnych — od Ultrace po The ICE St. Moritz.">
+<link rel="canonical" href="https://arekcarphotography.pl/">
+<link rel="alternate" hreflang="pl" href="https://arekcarphotography.pl/">
+<link rel="alternate" hreflang="en" href="https://arekcarphotography.pl/en/">
+<link rel="alternate" hreflang="x-default" href="https://arekcarphotography.pl/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Arek Carphotography">
+<meta property="og:locale" content="pl_PL">
+<meta property="og:locale:alternate" content="en_GB">
+<meta property="og:title" content="Fotograf samochodowy Rzeszów, Podkarpacie i cała Polska | Arek Carphotography">
+<meta property="og:description" content="Fotografia samochodowa: sesje aut, supercary, klasyki i projekty tuningowe na Podkarpaciu i w całej Polsce oraz relacje z eventów motoryzacyjnych — od Ultrace po The ICE St. Moritz.">
+<meta property="og:url" content="https://arekcarphotography.pl/">
+<meta property="og:image" content="https://arekcarphotography.pl/assets/og/home.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"ProfessionalService","name":"Arek Carphotography","description":"Fotografia samochodowa: sesje aut, supercary, klasyki i projekty tuningowe na Podkarpaciu i w całej Polsce oraz relacje z eventów motoryzacyjnych — od Ultrace po The ICE St. Moritz.","url":"https://arekcarphotography.pl/","image":"https://arekcarphotography.pl/assets/og/home.jpg","email":"arek.carphotography@gmail.com","address":{"@type":"PostalAddress","addressLocality":"Rzeszów","addressRegion":"Podkarpackie","addressCountry":"PL"},"areaServed":[{"@type":"AdministrativeArea","name":"Województwo podkarpackie"},{"@type":"Country","name":"Polska"},{"@type":"Place","name":"Europe"}],"knowsLanguage":["pl","en"],"sameAs":["https://www.instagram.com/arek_carphotography/","https://www.tiktok.com/@arek_carphotography","https://www.facebook.com/people/ArekCarphotography/61562513344595/"]}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebSite","name":"Arek Carphotography","url":"https://arekcarphotography.pl/","inLanguage":"pl"}</script>
+<script>window.PAGE = {"type":"home","lang":"pl","alt":{"pl":"","en":"en/"}};</script>
+<!-- SEO:END -->
+<meta name="theme-color" content="#0d0d0d">
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
+<link rel="preload" href="assets/fonts/jost-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="assets/fonts/jost-latin-ext.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="assets/fonts/inter-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="assets/style.css?v=20261119s">
+</head>
+<body>
+<!-- Treść sekcji (nagłówki, teksty, hero, albumy, oferta, FAQ, blog) wstawia tools/build_site.rb do HTML,
+     żeby była widoczna bez JavaScriptu (Google, podglądy linków). Skrypty potem tylko ją animują i odświeżają. -->
+<main>
+<!-- class="v2" od razu rezerwuje wysokość hero — bez tego strona „skakała” po uruchomieniu skryptu (CLS) -->
+<section class="hero v2" id="hero" aria-label="Wyróżnione zdjęcia"><!-- HERO --></section>
+
+<section id="work">
+  <div class="wrap">
+    <div class="reveal"><div class="eyebrow" data-i18n="work.eyebrow"></div><h2 data-i18n="work.h"></h2></div>
+    <div class="filters reveal" id="filters"></div>
+    <div class="grid" id="grid"></div>
+  </div>
+</section>
+
+<section id="albums" style="padding-top:0">
+  <div class="wrap">
+    <div class="reveal"><div class="eyebrow" data-i18n="albums.eyebrow"></div><h2 data-i18n="albums.h"></h2></div>
+    <div class="albums" id="albumList"></div>
+  </div>
+</section>
+
+<section id="offer" class="offer">
+  <div class="wrap">
+    <div class="reveal"><div class="eyebrow" data-i18n="offer.eyebrow"></div><h2 data-i18n="offer.h"></h2></div>
+    <p class="offer-lead reveal" data-i18n="offer.p"></p>
+    <div class="offer-grid" id="offerList"></div>
+    <p class="offer-where reveal"><span data-i18n="offer.where"></span><a class="lnk" id="offerMore" href="sesja-samochodowa/" data-i18n="offer.more"></a></p>
+  </div>
+</section>
+
+<section id="about" style="background:var(--bg2)">
+  <div class="wrap about">
+    <div class="reveal" id="aboutImg"></div>
+    <div class="reveal">
+      <div class="eyebrow" data-i18n="about.eyebrow"></div>
+      <h2 data-i18n="about.h"></h2>
+      <p class="about-p" data-i18n="about.p1"></p>
+      <p class="about-p" data-i18n="about.p2"></p>
+      <p class="about-p" data-i18n="about.p3"></p>
+      <div class="stats">
+        <div><b data-count="19">0</b><span data-i18n="stats.age"></span></div>
+        <div><b id="statAlbums">0</b><span data-i18n="stats.albums"></span></div>
+        <div><b id="statPhotos" data-plus="1">0</b><span data-i18n="stats.photos"></span></div>
+      </div>
+      <a class="btn" href="#contact" data-i18n="contact.btn" style="margin-top:32px"></a>
+    </div>
+  </div>
+</section>
+
+<section id="blog">
+  <div class="wrap">
+    <div class="reveal"><div class="eyebrow" data-i18n="blog.eyebrow"></div><h2 data-i18n="blog.h"></h2></div>
+    <div class="posts" id="posts"></div>
+  </div>
+</section>
+
+<section id="faq" class="faq-sec">
+  <div class="wrap faq-wrap">
+    <div class="reveal"><div class="eyebrow" data-i18n="faq.eyebrow"></div><h2 data-i18n="faq.h"></h2></div>
+    <div class="faq" id="faqList"></div>
+  </div>
+</section>
+</main>
+
+<script src="assets/photos.js?v=20261119s"></script>
+<script src="assets/data.js?v=20261119s"></script>
+<script src="assets/app.js?v=20261119s"></script>
+<script src="assets/hero.js?v=20261119s"></script>
+<script>
+let cat = "all";
+// Wybrane kadry: po kilka z każdego albumu (rozłożone po całym albumie, żeby była różnorodność)
+const pick = (list, n) => list.length <= n ? list : Array.from({ length: n }, (_, i) => list[Math.floor(i * list.length / n)]);
+const allPhotos = () => ALBUMS.flatMap(a => photoItems(a, pick(a.photos, a.kind === "event" ? 5 : 3), true)
+  .map(p => ({ ...p, cats: [TRIPS.find(t => t.slug === a.trip)?.filter, a.kind === "car" ? "car" : null] })));
+// Przeplatamy albumy, żeby obok siebie nie stało 5 zdjęć tego samego auta
+const interleave = items => { const by = {}; items.forEach(p => (by[p.album] ||= []).push(p));
+  const out = [], q = Object.values(by); while (q.some(x => x.length)) q.forEach(x => x.length && out.push(x.shift())); return out; };
+
+function renderGrid() {
+  const items = interleave(allPhotos().filter(p => cat === "all" || p.cats.includes(cat)));
+  $("#grid").innerHTML = gridHTML(items); bindGrid($("#grid"), items); observe();
+}
+
+// Zdjęcie w sekcji „O mnie” — docelowo Twój portret albo zdjęcie Ciebie przy pracy
+$("#aboutImg").innerHTML = pic("koenigsegg-cc850", "dsc07731", "Arek Carphotography — fotograf samochodowy", "(max-width: 860px) 100vw, 50vw");
+$("#statAlbums").dataset.count = ALBUMS.length;
+$("#statPhotos").dataset.count = Math.floor(ALBUMS.reduce((n, a) => n + a.photos.length, 0) / 10) * 10;
+
+window.renderPage = () => {
+  document.title = t("meta.title");
+  $('meta[name="description"]').content = t("meta.desc");
+  if (window.heroLang) heroLang();
+  $("#filters").innerHTML = Object.entries(CATS).map(([k, v]) => `<button data-c="${k}" class="${k === cat ? "on" : ""}">${L(v)}</button>`).join("");
+  renderGrid();
+  // Wyjazdy jako szerokie kafle, a albumy z wyjazdów są dostępne na ich stronie zbiorczej
+  $("#albumList").innerHTML = TRIPS.map(tripCard).join("") + ALBUMS.filter(a => !a.trip).map(albumCard).join("");
+  $("#posts").innerHTML = [...POSTS].sort((a, b) => b.date.localeCompare(a.date)).map(p => `<article class="post reveal"><a href="${URLS.post(p.slug)}">
+    ${pic(p.img[0], p.img[1], L(p.t), "(max-width: 700px) 100vw, 33vw")}<time datetime="${p.date}">${fmtDate(p.date)}</time>
+    <h3><span>${L(p.t)}</span></h3><p>${L(p.d)}</p><span class="more">${t("blog.more")}</span></a></article>`).join("");
+};
+$("#filters").onclick = e => { const b = e.target.closest("button"); if (!b) return;
+  cat = b.dataset.c; $$("#filters button").forEach(x => x.classList.toggle("on", x === b)); renderGrid(); };
+
+applyLang();
+
+// Liczniki
+const cio = new IntersectionObserver(es => es.forEach(e => { if (!e.isIntersecting) return;
+  const b = e.target, n = +b.dataset.count, st = performance.now();
+  (function f(now) { const k = Math.min((now - st) / 1600, 1); b.textContent = Math.round(n * (1 - Math.pow(1 - k, 3))) + (k === 1 && b.dataset.plus ? "+" : ""); if (k < 1) requestAnimationFrame(f); })(st);
+  cio.unobserve(b); }));
+$$("[data-count]").forEach(b => cio.observe(b));
+</script>
+</body>
+</html>

@@ -1876,4 +1876,14 @@
     <xhtml:link rel="alternate" hreflang="en" href="https://arekcarphotography.pl/en/blog/jak-przygotowac-auto-do-sesji/"/>
     <xhtml:link rel="alternate" hreflang="x-default" href="https://arekcarphotography.pl/blog/jak-przygotowac-auto-do-sesji/"/>
   </url>
+  <url><loc>https://arekcarphotography.pl/sesja-samochodowa/</loc>
+    <xhtml:link rel="alternate" hreflang="pl" href="https://arekcarphotography.pl/sesja-samochodowa/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://arekcarphotography.pl/en/car-photoshoot/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://arekcarphotography.pl/sesja-samochodowa/"/>
+  </url>
+  <url><loc>https://arekcarphotography.pl/en/car-photoshoot/</loc>
+    <xhtml:link rel="alternate" hreflang="pl" href="https://arekcarphotography.pl/sesja-samochodowa/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://arekcarphotography.pl/en/car-photoshoot/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://arekcarphotography.pl/sesja-samochodowa/"/>
+  </url>
 </urlset>

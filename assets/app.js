@@ -12,6 +12,7 @@ const URLS = {
   album: (s, l = LANG) => (l === "en" ? "en/albums/" : "albumy/") + s + "/",
   trip: (s, l = LANG) => (l === "en" ? "en/trips/" : "wyjazdy/") + s + "/",
   post: (s, l = LANG) => (l === "en" ? "en/blog/" : "blog/") + s + "/",
+  offer: (l = LANG) => l === "en" ? "en/car-photoshoot/" : "sesja-samochodowa/",
 };
 const t = k => I18N[LANG][k] ?? k;
 const L = o => o[LANG] || o.pl;
@@ -36,7 +37,7 @@ document.body.insertAdjacentHTML("afterbegin", `
 <header id="top"><div class="wrap nav">
   <a class="logo" href="${URLS.home()}">Arek Carphotography</a>
   <nav class="links" id="menu">
-    <a href="${URLS.home()}#work" data-i18n="nav.work"></a><a href="${URLS.home()}#albums" data-i18n="nav.albums"></a>
+    <a href="${URLS.home()}#work" data-i18n="nav.work"></a><a href="${URLS.home()}#albums" data-i18n="nav.albums"></a><a href="${URLS.offer()}" data-i18n="nav.offer"></a>
     <a href="${URLS.home()}#about" data-i18n="nav.about"></a><a href="${URLS.home()}#blog" data-i18n="nav.blog"></a>
     <a href="#contact" data-i18n="nav.contact"></a>
   </nav>
@@ -193,11 +194,20 @@ function pic(album, name, alt, sizes, extra = 'loading="lazy"') {
   const [w, h] = dims(album, name);
   return `<img src="${photo(album, name, 1280)}" srcset="${srcset(album, name)}" sizes="${sizes}" width="${w}" height="${h}" alt="${alt}" ${extra} decoding="async">`;
 }
+// Tekst alternatywny (ALT): opis z ALTS w data.js, a jeśli go nie ma — „Album — miejsce, zdjęcie X z N” (każde zdjęcie ma inny ALT)
+function altFor(slug, name) {
+  const x = typeof ALTS !== "undefined" && ALTS[`${slug}/${name}`];
+  if (x) return L(x);
+  const a = findAlbum(slug); if (!a) return "Arek Carphotography";
+  const i = a.photos.findIndex(p => p[0] === name), n = a.photos.length, place = a.tbc ? "" : ` — ${L(a.place)}`;
+  if (i < 0) return `${L(a.title)}${place}`;
+  return `${L(a.title)}${place}, ${LANG === "pl" ? `zdjęcie ${i + 1} z ${n}` : `photo ${i + 1} of ${n}`}`;
+}
 // Elementy galerii/lightboxa z albumu
 function photoItems(a, list = a.photos, link = false) {
   const title = L(a.title);
   return list.map(([name, w, h]) => ({ album: a.slug, name, w, h, title, sub: L(a.place),
-    alt: `${title} — ${L(a.place)} | fot. Arek Carphotography`, src: photo(a.slug, name, 2048), cap: title,
+    alt: altFor(a.slug, name), src: photo(a.slug, name, 2048), cap: title,
     href: link ? URLS.album(a.slug) : "" }));
 }
 const GRID_SIZES = "(max-width: 600px) 100vw, (max-width: 1000px) 50vw, (max-width: 1400px) 33vw, 25vw";
@@ -218,13 +228,13 @@ const tripAlbums = tr => ALBUMS.filter(a => a.trip === tr.slug);
 const tripPhotos = tr => tripAlbums(tr).reduce((n, a) => n + a.photos.length, 0);
 function albumCard(a) {
   return `<a class="album reveal" href="${URLS.album(a.slug)}">
-    ${pic(a.slug, a.cover, L(a.title), "(max-width: 700px) 100vw, 33vw")}
+    ${pic(a.slug, a.cover, altFor(a.slug, a.cover), "(max-width: 700px) 100vw, 33vw")}
     <div><span class="badge">${L(KIND[a.kind])}</span><h3>${L(a.title)}</h3><p>${L(a.place)} · ${photosLabel(a.photos.length)}</p><span class="go">${LANG === "pl" ? "Otwórz album" : "Open album"} →</span></div></a>`;
 }
 function tripCard(tr) {
   const al = tripAlbums(tr);
   return `<a class="album trip reveal" href="${URLS.trip(tr.slug)}">
-    ${pic(tr.cover[0], tr.cover[1], L(tr.title), "(max-width: 700px) 100vw, 66vw")}
+    ${pic(tr.cover[0], tr.cover[1], altFor(tr.cover[0], tr.cover[1]), "(max-width: 700px) 100vw, 66vw")}
     <div><span class="badge">${t("trip.label")} · ${albumsLabel(al.length)} · ${photosLabel(tripPhotos(tr))}</span><h3>${L(tr.title)}</h3>
     <p>${L(tr.place)} · ${fmtRange(tr.dates)}</p><p class="sub">${al.map(a => L(a.title)).join(" · ")}</p>
     <span class="go">${t("trip.open")} →</span></div></a>`;

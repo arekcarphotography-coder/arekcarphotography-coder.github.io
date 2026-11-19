@@ -50,6 +50,11 @@ ALBUMS   = js_literal("ALBUMS")
 HERO     = js_literal("HERO")
 POSTS    = js_literal("POSTS")
 I18N     = js_literal("I18N")
+KIND     = js_literal("KIND")
+OFFER    = js_literal("OFFER")
+OFFER_PAGE = js_literal("OFFER_PAGE")
+FAQ      = js_literal("FAQ")
+ALTS     = js_literal("ALTS")   # klucze „album/zdjęcie” (w Ruby jako symbole)
 PHOTOS   = JSON.parse(File.read("assets/photos.js", encoding: "UTF-8")[/\{.*\}/m])
 ALBUMS.each do |a|
   a[:photos] = PHOTOS[a[:slug]] || []
@@ -81,7 +86,34 @@ PATHS = {
   album:   ->(l, s) { (l == "en" ? "en/albums/" : "albumy/") + "#{s}/" },
   trip:    ->(l, s) { (l == "en" ? "en/trips/" : "wyjazdy/") + "#{s}/" },
   post:    ->(l, s) { (l == "en" ? "en/blog/" : "blog/") + "#{s}/" },
+  offer:   ->(l, _ = nil) { l == "en" ? "en/car-photoshoot/" : "sesja-samochodowa/" },
 }
+def srcset(a, n)
+  [640, 1280, 2048].map { |s| "#{photo(a, n, s)} #{s}w" }.join(", ")
+end
+def dims(a, n)
+  p = FIND[a] && FIND[a][:photos].find { |x| x[0] == n }
+  p ? [p[1], p[2]] : [3, 2]
+end
+# <img> jak pic() w assets/app.js
+def pic_html(a, n, alt, sizes, extra = 'loading="lazy"')
+  w, hh = dims(a, n)
+  %Q|<img src="#{photo(a, n, 1280)}" srcset="#{srcset(a, n)}" sizes="#{sizes}" width="#{w}" height="#{hh}" alt="#{h alt}" #{extra} decoding="async">|
+end
+# ALT jak altFor() w assets/app.js: opis z ALTS, a bez niego „Album — miejsce, zdjęcie X z N”
+def alt_for(slug, name, l)
+  x = ALTS[:"#{slug}/#{name}"]
+  return L(x, l) if x
+  a = FIND[slug] or return "Arek Carphotography"
+  i = a[:photos].index { |p| p[0] == name }
+  place = a[:tbc] ? "" : " — #{L(a[:place], l)}"
+  return "#{L(a[:title], l)}#{place}" unless i
+  "#{L(a[:title], l)}#{place}, #{l == "pl" ? "zdjęcie #{i + 1} z #{a[:photos].size}" : "photo #{i + 1} of #{a[:photos].size}"}"
+end
+def nalbums(n, l)
+  return "#{n} albums" if l == "en"
+  "#{n} #{n == 1 ? "album" : (n % 10).between?(2, 4) && !(n % 100).between?(12, 14) ? "albumy" : "albumów"}"
+end
 MONTHS = { "pl" => %w[stycznia lutego marca kwietnia maja czerwca lipca sierpnia września października listopada grudnia],
            "en" => %w[January February March April May June July August September October November December] }
 def fdate(d, l)
@@ -118,12 +150,12 @@ end
 HOME_OG = og_image("home", HERO[0][:a], HERO[0][:n])
 
 # ---------- <head> ----------
-def seo_block(l, title:, desc:, path:, alt:, og:, type: "website", ld: [], page: {})
+def seo_block(l, title:, desc:, path:, alt:, og:, type: "website", ld: [], page: {}, extra: "")
   pl, en = alt["pl"], alt["en"]
   ld_json = ld.map { |o| %Q|<script type="application/ld+json">#{JSON.generate(o).gsub("</", "<\\/")}</script>| }.join("\n")
   <<~HTML.chomp
     <!-- SEO:START (generowane przez tools/build_site.rb — nie edytuj ręcznie) -->
-    <title>#{h title}</title>
+    <title>#{h title}</title>#{extra.empty? ? "" : "\n" + extra}
     <meta name="description" content="#{h desc}">
     <link rel="canonical" href="#{abs path}">
     <link rel="alternate" hreflang="pl" href="#{abs pl}">
@@ -173,24 +205,98 @@ def crumbs(l, items) # [[nazwa, ścieżka], ...]
 end
 
 # ---------- wzorce ----------
-TPL = %w[index album trip post].to_h { |n| [n, File.read("#{n}.html", encoding: "UTF-8")] }
+# Strona główna ma wzorzec w tools/templates/index.html (index.html w katalogu głównym jest gotową, wypełnioną stroną —
+# zmiany układu strony głównej rób we wzorcu). Pozostałe wzorce: album.html, trip.html, post.html.
+TPL = %w[index album trip post].to_h { |n| [n, File.read(n == "index" ? "tools/templates/index.html" : "#{n}.html", encoding: "UTF-8")] }
 TPL.each { |n, s| abort "#{n}.html: brak znaczników <!-- SEO:START --> / <!-- SEO:END -->" unless s.include?("<!-- SEO:START") && s.include?("<!-- SEO:END -->") }
 # strona bez własnego skryptu (polityka, 404): wzorzec albumu bez skryptu renderującego
 PLAIN = TPL["album"].sub(%r{<script>\s*const slug.*?</script>\n?}m, "")
 
-# ---------- strona główna ----------
+# ---------- wspólne: firma (JSON-LD), FAQ ----------
+BIZ_ID = abs("") + "#firma"
+def business_ld(l)
+  { "@context" => "https://schema.org", "@type" => "ProfessionalService", "@id" => BIZ_ID, "name" => "Arek Carphotography",
+    "description" => t("meta.desc", l), "url" => abs(PATHS[:home].(l)), "image" => abs(HOME_OG),
+    "logo" => abs("assets/apple-touch-icon.png"), "email" => EMAIL,
+    "address" => { "@type" => "PostalAddress", "addressLocality" => "Rzeszów", "addressRegion" => "podkarpackie", "addressCountry" => "PL" },
+    "areaServed" => [{ "@type" => "City", "name" => "Rzeszów" },
+                     { "@type" => "AdministrativeArea", "name" => l == "pl" ? "województwo podkarpackie" : "Podkarpackie Voivodeship" },
+                     { "@type" => "Country", "name" => l == "pl" ? "Polska" : "Poland" }],
+    "founder" => { "@type" => "Person", "name" => "Arek", "jobTitle" => l == "pl" ? "Fotograf motoryzacyjny" : "Automotive photographer" },
+    "knowsLanguage" => %w[pl en], "sameAs" => SOCIAL.map { |s| s[1] }.select { |u| u.start_with?("http") } }
+end
+def faq_ld(l)
+  { "@context" => "https://schema.org", "@type" => "FAQPage",
+    "mainEntity" => FAQ.map { |f| { "@type" => "Question", "name" => L(f[:q], l), "acceptedAnswer" => { "@type" => "Answer", "text" => L(f[:a], l) } } } }
+end
+def faq_html(l)
+  FAQ.map do |f|
+    link = f[:post] ? %Q| <a href="#{PATHS[:post].(l, f[:post])}">#{l == "pl" ? "Przeczytaj poradnik →" : "Read the guide →"}</a>| : ""
+    %Q|<details class="faq-item"><summary><h3>#{h L(f[:q], l)}</h3></summary><p>#{h L(f[:a], l)}#{link}</p></details>|
+  end.join("\n")
+end
+
+# ---------- strona główna: treść w HTML (bez czekania na JavaScript) ----------
+def fill_i18n(html, l)
+  html.gsub(/(<(\w+)\b[^>]*\sdata-i18n="([^"]+)"[^>]*>)(.*?)(<\/\2>)/m) do
+    m = Regexp.last_match
+    m[1] + h(t(m[3], l)) + m[5]
+  end
+end
+def fill_id(html, id, inner)
+  html.sub(%r{(<div[^>]*\sid="#{id}"[^>]*>)(</div>)}) { m = Regexp.last_match; m[1] + inner + m[2] } or abort("brak ##{id}")
+end
+def album_card(a, l)
+  %Q|<a class="album reveal" href="#{PATHS[:album].(l, a[:slug])}">
+    #{pic_html(a[:slug], a[:cover], alt_for(a[:slug], a[:cover], l), "(max-width: 700px) 100vw, 33vw")}
+    <div><span class="badge">#{h L(KIND[a[:kind].to_sym], l)}</span><h3>#{h L(a[:title], l)}</h3><p>#{h L(a[:place], l)} · #{nphotos(a[:photos].size, l)}</p><span class="go">#{l == "pl" ? "Otwórz album" : "Open album"} →</span></div></a>|
+end
+def trip_card(tr, l)
+  al = ALBUMS.select { |a| a[:trip] == tr[:slug] }
+  %Q|<a class="album trip reveal" href="#{PATHS[:trip].(l, tr[:slug])}">
+    #{pic_html(tr[:cover][0], tr[:cover][1], alt_for(tr[:cover][0], tr[:cover][1], l), "(max-width: 700px) 100vw, 66vw")}
+    <div><span class="badge">#{h t("trip.label", l)} · #{nalbums(al.size, l)} · #{nphotos(al.sum { |a| a[:photos].size }, l)}</span><h3>#{h L(tr[:title], l)}</h3>
+    <p>#{h L(tr[:place], l)} · #{frange(tr[:dates], l)}</p><p class="sub">#{h al.map { |a| L(a[:title], l) }.join(" · ")}</p>
+    <span class="go">#{h t("trip.open", l)} →</span></div></a>|
+end
+def hero_static(l)
+  x = HERO[0]; a, n = x[:a], x[:n]
+  src = x[:m] ? %Q|<source media="(max-aspect-ratio: 4/5)" sizes="100vw" width="#{dims(a, x[:m])[0]}" height="#{dims(a, x[:m])[1]}" srcset="#{srcset(a, x[:m])}">| : ""
+  img = pic_html(a, n, alt_for(a, n, l), "100vw", %Q|fetchpriority="high" style="object-position:#{x[:pos] || "50% 50%"}"|)
+  head = %Q|<div class="hh"><div class="hh-l"><div class="hero-eyebrow"><span data-i18n="hero.eyebrow"></span></div>
+  <h1><span><i data-i18n="hero.l1"></i></span> <span><i data-i18n="hero.l2"></i></span></h1></div>
+  <div class="hh-r"><p data-i18n="hero.p"></p>
+  <div class="hero-cta"><a class="btn" href="#work" data-i18n="hero.cta1"></a><a class="lnk" href="#contact" data-i18n="hero.cta2"></a></div></div></div>|
+  %Q|<div class="v2-stick"><div class="v2-frame"><div class="hero-static"><picture>#{src}#{img}</picture></div></div><div class="wrap v2-head">#{head}</div></div>|
+end
+def hero_preload
+  x = HERO[0]; a = x[:a]
+  out = []
+  out << %Q|<link rel="preload" as="image" imagesrcset="#{srcset(a, x[:m])}" imagesizes="100vw" media="(max-aspect-ratio: 4/5)" fetchpriority="high">| if x[:m]
+  out << %Q|<link rel="preload" as="image" imagesrcset="#{srcset(a, x[:n])}" imagesizes="100vw"#{x[:m] ? ' media="(min-aspect-ratio: 801/1000)"' : ""} fetchpriority="high">|
+  out.join("\n")
+end
+
 sitemap = [] # [ścieżka PL, ścieżka EN, [obrazki]]
 LANGS.each do |l|
   alt = { "pl" => PATHS[:home].("pl"), "en" => PATHS[:home].("en") }
-  ld = [{ "@context" => "https://schema.org", "@type" => "ProfessionalService", "name" => "Arek Carphotography",
-          "description" => t("meta.desc", l), "url" => abs(alt[l]), "image" => abs(HOME_OG), "email" => EMAIL,
-          "address" => { "@type" => "PostalAddress", "addressLocality" => "Rzeszów", "addressRegion" => "Podkarpackie", "addressCountry" => "PL" },
-          "areaServed" => [{ "@type" => "AdministrativeArea", "name" => l == "pl" ? "Województwo podkarpackie" : "Podkarpackie Voivodeship" },
-                           { "@type" => "Country", "name" => l == "pl" ? "Polska" : "Poland" }, { "@type" => "Place", "name" => "Europe" }],
-          "knowsLanguage" => %w[pl en], "sameAs" => SOCIAL.map { |s| s[1] }.select { |u| u.start_with?("http") } },
-        { "@context" => "https://schema.org", "@type" => "WebSite", "name" => "Arek Carphotography", "url" => abs(alt[l]), "inLanguage" => l }]
-  block = seo_block(l, title: t("meta.title", l), desc: t("meta.desc", l), path: alt[l], alt: alt, og: HOME_OG, ld: ld, page: { type: "home" })
+  ld = [business_ld(l),
+        { "@context" => "https://schema.org", "@type" => "WebSite", "name" => "Arek Carphotography", "url" => abs(alt[l]), "inLanguage" => l },
+        faq_ld(l)]
+  block = seo_block(l, title: t("meta.title", l), desc: t("meta.desc", l), path: alt[l], alt: alt, og: HOME_OG, ld: ld,
+                    page: { type: "home" }, extra: hero_preload)
   html = set_lang(set_seo(TPL["index"], block), l)
+  html = html.sub(%r{(<section class="hero v2" id="hero"[^>]*>).*?(</section>)}m) { m = Regexp.last_match; m[1] + hero_static(l) + m[2] }
+  html = html.sub(%Q|id="offerMore" href="sesja-samochodowa/"|, %Q|id="offerMore" href="#{PATHS[:offer].(l)}"|)
+  html = fill_id(html, "albumList", TRIPS.map { |tr| trip_card(tr, l) }.join + ALBUMS.reject { |a| a[:trip] }.map { |a| album_card(a, l) }.join)
+  html = fill_id(html, "offerList", OFFER.map { |o| %Q|<div class="offer-item reveal"><h3>#{h L(o[:h], l)}</h3><p>#{h L(o[:p], l)}</p></div>| }.join)
+  html = fill_id(html, "faqList", faq_html(l))
+  html = fill_id(html, "posts", POSTS.sort_by { |p| p[:date] }.reverse.map { |p|
+    %Q|<article class="post reveal"><a href="#{PATHS[:post].(l, p[:slug])}">
+    #{pic_html(p[:img][0], p[:img][1], L(p[:t], l), "(max-width: 700px) 100vw, 33vw")}<time datetime="#{p[:date]}">#{fdate(p[:date], l)}</time>
+    <h3><span>#{h L(p[:t], l)}</span></h3><p>#{h L(p[:d], l)}</p><span class="more">#{h t("blog.more", l)}</span></a></article>| }.join)
+  html = fill_id(html, "aboutImg", pic_html("koenigsegg-cc850", "dsc07731", "Arek Carphotography — fotograf samochodowy", "(max-width: 860px) 100vw, 50vw"))
+  html = fill_i18n(html, l)
   if l == "pl" then File.write("index.html", html); WRITTEN << "" else write(alt[l], html) end
 end
 sitemap << [PATHS[:home].("pl"), PATHS[:home].("en"), HERO.map { |x| [photo(x[:a], x[:n]), L(FIND[x[:a]]&.dig(:title) || "", "pl")] }]
@@ -223,6 +329,7 @@ ALBUMS.each do |a|
       <h1>#{h title}</h1><p>#{h meta}</p><p>#{h L(a[:desc], l)}</p>
       #{tr ? %Q|<p><a href="#{PATHS[:trip].(l, tr[:slug])}">#{h L(tr[:title], l)}</a></p>| : ""}
       #{sib.empty? ? "" : "<ul>" + sib.map { |x| %Q|<li><a href="#{PATHS[:album].(l, x[:slug])}">#{h L(x[:title], l)}</a></li>| }.join + "</ul>"}
+      <div class="seo-pics">#{a[:photos].first(12).map { |n, w, hh| %Q|<img src="#{photo(a[:slug], n, 640)}" width="#{w}" height="#{hh}" alt="#{h alt_for(a[:slug], n, l)}" loading="lazy" decoding="async">| }.join}</div>
       </div></section>
     HTML
     write(alt[l], set_main(set_lang(set_seo(TPL["album"], block), l), pre))
@@ -286,6 +393,44 @@ POSTS.each do |p|
   sitemap << [PATHS[:post].("pl", p[:slug]), PATHS[:post].("en", p[:slug]), []]
 end
 
+# ---------- oferta: /sesja-samochodowa/ i /en/car-photoshoot/ (strona statyczna, bez skryptu renderującego) ----------
+OP = OFFER_PAGE
+LANGS.each do |l|
+  alt = LANGS.to_h { |x| [x, PATHS[:offer].(x)] }
+  types = OFFER.map do |o|
+    ex = (o[:albums] || []).map { |s| FIND[s] }.compact.map { |a| %Q|<a href="#{PATHS[:album].(l, a[:slug])}">#{h L(a[:title], l)}</a>| } +
+         (o[:trips] || []).map { |s| TRIPS.find { |x| x[:slug] == s } }.compact.map { |tr| %Q|<a href="#{PATHS[:trip].(l, tr[:slug])}">#{h L(tr[:title], l)}</a>| }
+    %Q|<div class="offer-item"><h3>#{h L(o[:h], l)}</h3><p>#{h L(o[:p], l)}</p>#{ex.empty? ? "" : %Q|<p class="ex">#{h L(OP[:examples], l)}: #{ex.join(" · ")}</p>|}</div>|
+  end.join("\n")
+  steps = OP[:steps].map { |s| %Q|<li><b>#{h L(s[:h], l)}</b> #{h L(s[:p], l)}</li>| }.join
+  service = { "@context" => "https://schema.org", "@type" => "Service", "name" => L(OP[:h1], l), "description" => L(OP[:desc], l),
+              "serviceType" => l == "pl" ? "Fotografia motoryzacyjna" : "Automotive photography", "url" => abs(alt[l]),
+              "provider" => { "@id" => BIZ_ID, "@type" => "ProfessionalService", "name" => "Arek Carphotography" },
+              "areaServed" => business_ld(l)["areaServed"] }
+  block = seo_block(l, title: L(OP[:title], l), desc: L(OP[:desc], l), path: alt[l], alt: alt, og: HOME_OG,
+                    ld: [service, faq_ld(l), crumbs(l, [[t("album.home", l), PATHS[:home].(l)], [L(OP[:h1], l), alt[l]]])], page: { type: "offer" })
+  pre = <<~HTML
+    <section class="seo-pre offer-page"><div class="wrap">
+    <nav class="crumbs" aria-label="breadcrumb"><a href="#{PATHS[:home].(l).then { |p| p.empty? ? "./" : p }}">#{h t("album.home", l)}</a> / #{h L(OP[:h1], l)}</nav>
+    <h1>#{h L(OP[:h1], l)}</h1>
+    <p class="lead">#{h L(OP[:lead], l)}</p>
+    <h2>#{h L(OP[:types], l)}</h2>
+    <div class="offer-grid">#{types}</div>
+    <h2>#{h L(OP[:steps_h], l)}</h2>
+    <ol class="steps">#{steps}</ol>
+    <h2>#{h L(OP[:where_h], l)}</h2>
+    <p>#{h L(OP[:where], l)}</p>
+    <h2>#{h L(OP[:price_h], l)}</h2>
+    <p>#{h L(OP[:price], l)}</p>
+    <p><a class="btn" href="#contact">#{h L(OP[:cta], l)}</a></p>
+    <h2>#{h t("faq.h", l)}</h2>
+    <div class="faq">#{faq_html(l)}</div>
+    </div></section>
+  HTML
+  write(alt[l], set_main(set_lang(set_seo(PLAIN, block), l), pre))
+end
+sitemap << [PATHS[:offer].("pl"), PATHS[:offer].("en"), []]
+
 # ---------- 404 ----------
 nf = set_seo(PLAIN, <<~HTML.chomp)
   <!-- SEO:START (generowane przez tools/build_site.rb — nie edytuj ręcznie) -->
@@ -316,7 +461,7 @@ sitemap.each do |pl, en, imgs|
 end
 xml << "</urlset>\n"
 File.write("sitemap.xml", xml)
-File.write("robots.txt", "User-agent: *\nAllow: /\nDisallow: /admin.html\n\nSitemap: #{SITE_URL}/sitemap.xml\n")
+File.write("robots.txt", "User-agent: *\nAllow: /\n\nSitemap: #{SITE_URL}/sitemap.xml\n")
 
 puts "Strony: #{WRITTEN.size} (+ 404), sitemap: #{sitemap.size * 2} adresów, zdjęć w sitemap: #{sitemap.sum { |_, _, i| i.size }}"
 puts "Domena: #{SITE_URL}#{SITE_URL.include?("twojadomena") ? "  ← zmień SITE_URL w assets/data.js, gdy będziesz mieć domenę" : ""}"

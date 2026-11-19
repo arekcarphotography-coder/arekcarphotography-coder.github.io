@@ -10,7 +10,7 @@ const pad = n => String(n).padStart(2, "0");
 // ---- wspólne ----
 // Pełnoekranowe zdjęcie: „m” = pionowe zdjęcie całego auta na telefony, „wide” = poziomy kadr na szerokie ekrany
 const heroImg = (h, i, sizes = "100vw") => {
-  const img = pic(h.a, h.n, `${L(findAlbum(h.a).title)} — Arek Carphotography`, sizes,
+  const img = pic(h.a, h.n, altFor(h.a, h.n), sizes,
     `${i ? 'loading="lazy"' : 'fetchpriority="high"'} style="object-position:${h.pos || "50% 50%"}"`);
   const src = (media, name, [w, hh]) => `<source media="${media}" sizes="${sizes}" width="${w}" height="${hh}" srcset="${[640, 1280, 2048].map(s => `${photo(h.a, name, s)} ${s}w`).join(", ")}">`;
   if (!h.wide && !h.m) return img;
@@ -63,7 +63,7 @@ function heroFrameStrip(root) {
     const n = h.wide ? h.wide.n : h.n, [w, hh] = h.wide ? [h.wide.w, h.wide.h] : dims(h.a, h.n);
     return `<a class="v4-item" href="${URLS.album(h.a)}" style="--r:${(w / hh).toFixed(4)}">
       <img src="${photo(h.a, n, 1280)}" srcset="${[640, 1280, 2048].map(s => `${photo(h.a, n, s)} ${s}w`).join(", ")}"
-        sizes="${w > hh ? "100vw" : "70vh"}" width="${w}" height="${hh}" alt="${L(findAlbum(h.a).title)} — Arek Carphotography"
+        sizes="${w > hh ? "100vw" : "70vh"}" width="${w}" height="${hh}" alt="${altFor(h.a, n)}"
         loading="lazy" decoding="async"></a>`;
   };
   root.innerHTML = `<div class="v2-stick">
@@ -156,7 +156,7 @@ function heroCarousel(root, stacks) {
     const { a, n } = shot(h), [w, hh] = size(h);
     return `<a class="vm-ph" href="${URLS.album(h.a)}" style="--r:${(w / hh).toFixed(4)}">
       <img src="${photo(a, n, 1280)}" srcset="${[640, 1280, 2048].map(s => `${photo(a, n, s)} ${s}w`).join(", ")}"
-        sizes="${few ? "92vw" : "100vw"}" width="${w}" height="${hh}" alt="${L(findAlbum(h.a).title)} — Arek Carphotography"
+        sizes="${few ? "92vw" : "100vw"}" width="${w}" height="${hh}" alt="${altFor(a, n)}"
         loading="lazy" decoding="async">${lab(h)}</a>`;
   };
   root.innerHTML = `<div class="v2-stick">
